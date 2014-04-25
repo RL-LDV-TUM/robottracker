@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project(robottracker)
+SET(CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/lib/cmake/ )
+find_package(aruco REQUIRED )
+add_executable(tracker tracker_main.cpp)
+target_link_libraries(tracker  ${aruco_LIBS})
