@@ -96,7 +96,7 @@ int main(int argc,char **argv)
               {
                 //cv::approxPolyDP(contours[i], approxCurve, double ( contours[i].size() ) *0.05 , true );
                 double area = cv::contourArea(contours[i]);
-                if(area > 400 && area < 1500)
+                if(area > 300 && area < 1300)
                 {
                   cv::approxPolyDP(contours[i], approxCurve, double ( contours[i].size() ) *0.01 , true );
                   
@@ -104,9 +104,13 @@ int main(int argc,char **argv)
                   
                   cv::Rect bounding = cv::boundingRect(approxCurve);
                   float convexity = area / bounding.area();
+                  float ratio = (float) bounding.height / bounding.width;
                   
-                  if(convexity > 0.1 && convexity < 0.4)
+                  if(convexity > 0.05 && convexity < 0.3 && ratio > 0.85 && ratio < 1.15)
+                  {
                     filteredContours.push_back(approxCurve);
+                    std::cout << "Area:" << area << " Convexity:" << convexity << " Ratio:" << bounding.height << "-" << bounding.width << "=" << ratio << std::endl;
+                  }
                 }
               }
             }
