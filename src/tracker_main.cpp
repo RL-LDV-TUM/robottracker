@@ -121,14 +121,14 @@ int main(int argc,char **argv)
             for (unsigned i=0;i<markers.size();i++)
             {
                 //cout<<markers[i]<<endl;
-                //markers[i].draw(inputImage,cv::Scalar(0,0,255),1);
+                markers[i].draw(inputImage,cv::Scalar(0,0,255),1);
             }
             
             //print other rectangles that contains no valid markers
             for (unsigned i=0;i<mDetector.getCandidates().size();i++)
             {
-                //aruco::Marker marker( mDetector.getCandidates()[i],999);
-                //marker.draw(inputImage,cv::Scalar(255,0,0));
+                aruco::Marker marker( mDetector.getCandidates()[i],999);
+                marker.draw(inputImage,cv::Scalar(255,0,0));
             }
             
             cv::imshow("thres",mDetector.getThresholdedImage());
