@@ -24,6 +24,7 @@ class PlaygroundDetector {
   private:
     void findContours(const cv::Mat &thresImage, Contours &contours) const;
     void filterContours(const Contours &contours, Contours &filteredContours) const;
+    void filterContours2(const Contours &contours, Contours &filteredContours) const;
     void extractCorners(const Contours &filteredContours, std::vector<cv::Point2f> &corners) const;
     
 
