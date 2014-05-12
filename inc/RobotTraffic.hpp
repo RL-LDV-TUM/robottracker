@@ -32,7 +32,7 @@ class RobotTraffic : public aruco::Marker {
   protected:
     
     Playground playGround;
-    cv::Mat pgPose_T;
+    cv::Mat pgPose_inv;
     std::map< int, RobotTrace > robotposes;
     
     /*
@@ -40,7 +40,10 @@ class RobotTraffic : public aruco::Marker {
     */
     cv::Mat calcPose(const aruco::Marker &marker) const;
     
-
+    /*
+    * calc inverse homog. 3D-Transformation mat
+    */
+    cv::Mat inverseTransformation(const cv::Mat &mat) const;
 };
 
 #endif
