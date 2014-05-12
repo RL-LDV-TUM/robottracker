@@ -14,6 +14,7 @@ include_directories(inc)
 add_library(tracker
   src/PlaygroundDetector.cpp
   src/Playground.cpp
+  src/RobotTraffic.cpp
 )
 
 target_link_libraries(tracker ${aruco_LIBS})

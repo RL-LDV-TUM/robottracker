@@ -14,18 +14,19 @@ bool PlaygroundDetector::detect(const cv::Mat &thresImage, Playground &playgroun
   Contours filteredContours;
   filterContours(contours, filteredContours);
   
-  // TODO: remove!
-  cv::drawContours(img, filteredContours, -1, cv::Scalar(0,0,255), 1);
+    // TODO: remove!
+    cv::drawContours(img, filteredContours, -1, cv::Scalar(0,0,255), 1);
   
-  if(filteredContours.size() != 4) return false;
+  if(filteredContours.size() < 4) return false;
   
   std::vector<cv::Point2f> corners; // max length: 4
   extractCorners(filteredContours, corners);
   
   // TODO: Rotation?
   
-  std::cout << corners[0] << corners[1] << corners[2] << corners[3] << playground.size() << std::endl;
-  playground.resize(4);
+  if(corners.size() != 4) return false;
+  
+  playground.resize(4); 
   std::copy(corners.begin(), corners.end(), playground.begin());
 
   return true;
@@ -130,6 +131,9 @@ void PlaygroundDetector::extractCorners(const Contours &filteredContours, std::v
       }
       corners.push_back(cv::Point2f(nearest.x, nearest.y));
     }
+    
+    cv::convexHull(corners, corners);
+    cv::approxPolyDP(corners, corners, 50, true );
 }
     
 

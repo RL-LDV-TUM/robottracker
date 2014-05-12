@@ -7,6 +7,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include "PlaygroundDetector.hpp"
+#include "RobotTraffic.hpp"
 
 int main(int argc,char **argv)
 {
@@ -37,6 +38,8 @@ int main(int argc,char **argv)
         std::vector<aruco::Marker> markers;
         cv::Mat inputImage;
         aruco::CameraParameters cameraParameters;
+        RobotTraffic robotTraffic;
+        
         
         
         /**************
@@ -86,18 +89,32 @@ int main(int argc,char **argv)
             
             mDetector.detect(inputImage,markers,cameraParameters,markerSize);
             
-            // ----- corner marker -----
+            for (unsigned i=0;i<markers.size();i++)
+            {
+                //cout<<markers[i]<<endl;
+                markers[i].calculateExtrinsics(7.0f, cameraParameters, false);
+                markers[i].draw(inputImage,cv::Scalar(0,0,255),1);
+            }
+            
+            // playground
             PlaygroundDetector pDetector;
             Playground playground;
             
             if( pDetector.detect(mDetector.getThresholdedImage(), playground, inputImage) )
-              playground.draw(inputImage,cv::Scalar(0,0,255),1);
-                      
-            
-            for (unsigned i=0;i<markers.size();i++)
             {
-                //cout<<markers[i]<<endl;
-                markers[i].draw(inputImage,cv::Scalar(0,0,255),1);
+              playground.calculateExtrinsics(28.0f, 20.0f, cameraParameters);
+              playground.draw(inputImage,cv::Scalar(0,0,255),1);
+              //markers.push_back(playground);
+            }
+            
+            // store positions
+            robotTraffic.updatePositions(markers, playground);
+            
+            // key == d // for debug ;-)
+            if(key == 100)
+            {
+              std::cout << "0:" << robotTraffic.queryRobot(0).first << std::endl;
+              std::cout << "9:" << robotTraffic.queryRobot(9).first << std::endl;
             }
             
             //cv::imshow("thres",mDetector.getThresholdedImage());

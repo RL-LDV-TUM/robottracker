@@ -1,19 +1,9 @@
 #include "Playground.hpp"
 
-Playground::Playground()
+Playground::Playground() : aruco::Marker()
 {
-
-}
-
-       
-/**Calculates the extrinsics (Rvec and Tvec) of the marker with respect to the camera
- * @param markerSize size of the marker side expressed in meters
- * @param CP parmeters of the camera
- * @param setYPerperdicular If set the Y axis will be perpendicular to the surface. Otherwise, it will be the Z axis
- */
-void Playground::calculateExtrinsics(cv::Size markerSize,const aruco::CameraParameters &CP,bool setYPerperdicular) throw(cv::Exception)
-{
-
+  id = 0;
+  psize = cv::Size(-1, -1);
 }
 
 void Playground::draw(cv::Mat &in, cv::Scalar color, int lineWidth) const
@@ -24,4 +14,50 @@ void Playground::draw(cv::Mat &in, cv::Scalar color, int lineWidth) const
     cv::line( in,(*this)[2],(*this)[3],color,lineWidth,CV_AA);
     cv::line( in,(*this)[3],(*this)[0],color,lineWidth,CV_AA);
 
+}
+
+/**
+ */
+void Playground::calculateExtrinsics(float width, float height, const aruco::CameraParameters &CP)throw(cv::Exception)
+{
+    if (!isValid()) throw cv::Exception(9004,"!isValid(): invalid marker. It is not possible to calculate extrinsics","calculateExtrinsics",__FILE__,__LINE__);
+    if (width <=0 || height <= 0) throw cv::Exception(9004,"width <=0 || height <= 0: invalid markerSize","calculateExtrinsics",__FILE__,__LINE__);
+    if (!CP.isValid()) throw cv::Exception(9004,"!CP.isValid(): invalid camera parameters. It is not possible to calculate extrinsics","calculateExtrinsics",__FILE__,__LINE__);
+    if (CP.CameraMatrix.rows==0 || CP.CameraMatrix.cols==0) throw cv::Exception(9004,"CameraMatrix is empty","calculateExtrinsics",__FILE__,__LINE__);
+ 
+    // TODO
+    
+    cv::Size halfSize(width*0.5f, height*0.5f);
+ 
+    cv::Mat ObjPoints(4,3,CV_32FC1);
+    ObjPoints.at<float>(1,0)=-halfSize.width;
+    ObjPoints.at<float>(1,1)=halfSize.height;
+    ObjPoints.at<float>(1,2)=0;
+    ObjPoints.at<float>(2,0)=halfSize.width;
+    ObjPoints.at<float>(2,1)=halfSize.height;
+    ObjPoints.at<float>(2,2)=0;
+    ObjPoints.at<float>(3,0)=halfSize.width;
+    ObjPoints.at<float>(3,1)=-halfSize.height;
+    ObjPoints.at<float>(3,2)=0;
+    ObjPoints.at<float>(0,0)=-halfSize.width;
+    ObjPoints.at<float>(0,1)=-halfSize.height;
+    ObjPoints.at<float>(0,2)=0;
+
+    cv::Mat ImagePoints(4,2,CV_32FC1);
+
+    //Set image points from the marker
+    for (int c=0;c<4;c++)
+    {
+        ImagePoints.at<float>(c,0)=((*this)[c%4].x);
+        ImagePoints.at<float>(c,1)=((*this)[c%4].y);
+    }
+    
+    cv::Mat raux,taux;
+    cv::solvePnP(ObjPoints, ImagePoints, CP.CameraMatrix, CP.Distorsion,raux,taux);
+    raux.convertTo(Rvec,CV_32F);
+    taux.convertTo(Tvec ,CV_32F);
+    
+    psize = cv::Size(width, height); 
+    cout<<(*this)<<endl;
+    
 }
