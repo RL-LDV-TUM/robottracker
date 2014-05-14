@@ -70,12 +70,15 @@ int main(int argc,char **argv)
         {
             cameraParameters.readFromXMLFile(intrinsicFile);
             cameraParameters.resize(inputImage.size());
-        }     
+        }
+        
+        mDetector.setCornerRefinementMethod(aruco::MarkerDetector::LINES);
+        //mDetector.setThresholdParams(7, 7);
         
         /**************
         * Create GUI
         ***************/
-        cv::namedWindow("thres",1);
+        //cv::namedWindow("thres",1);
         cv::namedWindow("image",1);
         char key = 0;
         
@@ -98,11 +101,11 @@ int main(int argc,char **argv)
             
             // playground
             PlaygroundDetector pDetector;
-            Playground playground;
+            Playground playground(28.0f, 20.0f); // DIN A4 TODO!
             
-            if( pDetector.detect(mDetector.getThresholdedImage(), playground, inputImage) )
+           if( pDetector.detect(mDetector.getThresholdedImage(), playground, inputImage) )
             {
-              playground.calculateExtrinsics(28.0f, 20.0f, cameraParameters);
+              playground.calculateExtrinsics(cameraParameters);
               playground.draw(inputImage,cv::Scalar(0,0,255),1);
               //markers.push_back(playground);
             }

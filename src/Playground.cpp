@@ -1,9 +1,8 @@
 #include "Playground.hpp"
 
-Playground::Playground() : aruco::Marker()
+Playground::Playground(float width, float height) : aruco::Marker(), psize(cv::Size(width, height))
 {
   id = 0;
-  psize = cv::Size(-1, -1);
 }
 
 void Playground::draw(cv::Mat &in, cv::Scalar color, int lineWidth) const
@@ -13,21 +12,26 @@ void Playground::draw(cv::Mat &in, cv::Scalar color, int lineWidth) const
     cv::line( in,(*this)[1],(*this)[2],color,lineWidth,CV_AA);
     cv::line( in,(*this)[2],(*this)[3],color,lineWidth,CV_AA);
     cv::line( in,(*this)[3],(*this)[0],color,lineWidth,CV_AA);
+    
+    putText(in, "A", (*this)[0], cv::FONT_HERSHEY_SIMPLEX, 2, color);
+    putText(in, "B", (*this)[1], cv::FONT_HERSHEY_SIMPLEX, 2, color);
+    putText(in, "C", (*this)[2], cv::FONT_HERSHEY_SIMPLEX, 2, color);
+    putText(in, "D", (*this)[3], cv::FONT_HERSHEY_SIMPLEX, 2, color);
 
 }
 
 /**
  */
-void Playground::calculateExtrinsics(float width, float height, const aruco::CameraParameters &CP)throw(cv::Exception)
+void Playground::calculateExtrinsics(const aruco::CameraParameters &CP)throw(cv::Exception)
 {
     if (!isValid()) throw cv::Exception(9004,"!isValid(): invalid marker. It is not possible to calculate extrinsics","calculateExtrinsics",__FILE__,__LINE__);
-    if (width <=0 || height <= 0) throw cv::Exception(9004,"width <=0 || height <= 0: invalid markerSize","calculateExtrinsics",__FILE__,__LINE__);
+    if (psize.width <=0 || psize.height <= 0) throw cv::Exception(9004,"width <=0 || height <= 0: invalid markerSize","calculateExtrinsics",__FILE__,__LINE__);
     if (!CP.isValid()) throw cv::Exception(9004,"!CP.isValid(): invalid camera parameters. It is not possible to calculate extrinsics","calculateExtrinsics",__FILE__,__LINE__);
     if (CP.CameraMatrix.rows==0 || CP.CameraMatrix.cols==0) throw cv::Exception(9004,"CameraMatrix is empty","calculateExtrinsics",__FILE__,__LINE__);
  
     // TODO
     
-    cv::Size halfSize(width*0.5f, height*0.5f);
+    cv::Size halfSize = cv::Size(psize.width*0.5f, psize.height*0.5f);
  
     cv::Mat ObjPoints(4,3,CV_32FC1);
     ObjPoints.at<float>(1,0)=-halfSize.width;
@@ -57,7 +61,6 @@ void Playground::calculateExtrinsics(float width, float height, const aruco::Cam
     raux.convertTo(Rvec,CV_32F);
     taux.convertTo(Tvec ,CV_32F);
     
-    psize = cv::Size(width, height); 
     cout<<(*this)<<endl;
     
 }

@@ -22,8 +22,6 @@ bool PlaygroundDetector::detect(const cv::Mat &thresImage, Playground &playgroun
   std::vector<cv::Point2f> corners; // max length: 4
   extractCorners(filteredContours, corners);
   
-  // TODO: Rotation?
-  
   if(corners.size() != 4) return false;
   
   playground.resize(4); 
@@ -35,7 +33,8 @@ bool PlaygroundDetector::detect(const cv::Mat &thresImage, Playground &playgroun
 
 void PlaygroundDetector::findContours(const cv::Mat &thresImage, Contours &contours) const
 {
-  cv::findContours(thresImage, contours, cv::noArray(), CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+  cv::Mat thres = thresImage.clone();
+  cv::findContours(thres, contours, cv::noArray(), CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
 }
 
 void PlaygroundDetector::filterContours(const Contours &contours, Contours &filteredContours) const
@@ -48,7 +47,7 @@ void PlaygroundDetector::filterContours(const Contours &contours, Contours &filt
     if(contours[i].size() > 20)
     {
       double area = cv::contourArea(contours[i]);
-      if(area > 300 && area < 1500)
+      if(area > 100 && area < 1500)
       {
         std::vector<cv::Point> approxCurve;
         cv::approxPolyDP(contours[i], approxCurve, double ( contours[i].size() ) *0.01 , true );
@@ -132,8 +131,39 @@ void PlaygroundDetector::extractCorners(const Contours &filteredContours, std::v
       corners.push_back(cv::Point2f(nearest.x, nearest.y));
     }
     
-    cv::convexHull(corners, corners);
+    cv::convexHull(corners, corners, true);
     cv::approxPolyDP(corners, corners, 50, true );
+    
+    if(corners.size() != 4) return;
+    
+    // find left upper corner = A
+    std::vector<cv::Point2f>::iterator A = corners.begin();
+    float minCoords = std::numeric_limits<float>::max();
+    
+    for(auto point = corners.begin(); point != corners.end(); point++)
+    {
+       float coords = point->x + point->y;
+       if(coords < minCoords)
+       {
+         minCoords = coords;
+         A = point;
+       }
+    }
+    
+    // rotate, so that A is first
+    // A - D
+    // |   |
+    // B - C
+    std::rotate(corners.begin(), A, corners.end());
+    
+    // rotation: restrict to 180 rotation
+    // determine rotation by playground side lengths
+    double a = cv::norm(corners[0] - corners[1]);
+    double b = cv::norm(corners[1] - corners[2]);
+    
+    if(a > b) // rotate 90° if AB is longer than BC
+      std::rotate(corners.begin(), corners.begin() + 1, corners.end() );
+    
 }
     
 

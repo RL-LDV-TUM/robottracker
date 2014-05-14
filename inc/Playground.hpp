@@ -13,12 +13,12 @@ class Playground : public aruco::Marker {
 
   public:
   
-    Playground();
+    Playground(float width = -1, float height = -1);
     ~Playground() {}
 
     void calculateExtrinsics(float markerSize, const aruco::CameraParameters &CP, bool setYPerperdicular=true) throw(cv::Exception) {};
     
-    void calculateExtrinsics(float width, float height, const aruco::CameraParameters &CP) throw(cv::Exception);
+    void calculateExtrinsics(const aruco::CameraParameters &CP) throw(cv::Exception);
 
     void draw(cv::Mat &in, cv::Scalar color, int lineWidth) const;
     
