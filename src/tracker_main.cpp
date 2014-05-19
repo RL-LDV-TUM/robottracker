@@ -101,7 +101,8 @@ int main(int argc,char **argv)
             
             // playground
             PlaygroundDetector pDetector;
-            Playground playground(28.0f, 20.0f); // DIN A4 TODO!
+            //Playground playground(28.0f, 20.0f); // test playground: DIN A4 TODO!
+            Playground playground(100.0f, 70.0f); // Real Playground
             
            if( pDetector.detect(mDetector.getThresholdedImage(), playground, inputImage) )
             {

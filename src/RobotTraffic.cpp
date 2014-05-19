@@ -24,13 +24,22 @@ void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, co
   {
     for( aruco::Marker robotMarker : markers)
     {
-      robotposes[robotMarker.id] = RobotTrace(calcPose(robotMarker), std::time(0));
+      if(robotMarker.id <= 0) continue;
       
-      std::cout << "Found Marker: " << robotMarker.id << "|" << calcPose(robotMarker) << std::endl;
+      // calc Pose relative to Playground
+      cv::Mat relPose = pgPose_inv * calcPose(robotMarker);
+      
+      robotposes[robotMarker.id] = RobotTrace(relPose, std::time(0));
+      
+      std::cout << "Found Marker: " << robotMarker.id << "|" << relPose << std::endl;
     }
   }
 }
 
+/*
+* Get robots last known position (RobotTrace)
+* by robot id
+*/
 RobotTrace RobotTraffic::queryRobot(unsigned id)
 {
   std::map< int, RobotTrace >::iterator trace;
@@ -44,7 +53,7 @@ RobotTrace RobotTraffic::queryRobot(unsigned id)
 }
 
 /*
-* Calc robot pose depeding relative to playground
+* Calc abs robot pose
 */
 cv::Mat RobotTraffic::calcPose(const aruco::Marker &marker) const
 {
@@ -65,13 +74,7 @@ cv::Mat RobotTraffic::calcPose(const aruco::Marker &marker) const
   
   absPose.at<float>(3,3) = 1;
   
-  // for playground we need absolute Pose_{camera}
-  if(marker.id == 0) return absPose;
-  
-  // Pose_{playground} = PlaygroundPose_{camera}^-1 * Pose_{camera}
-  cv::Mat relPose = pgPose_inv * absPose;
-  
-  return relPose;
+  return absPose;
 }
 
 /*

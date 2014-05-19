@@ -25,7 +25,8 @@ class RobotTraffic : public aruco::Marker {
     void updatePositions(const std::vector<aruco::Marker> &markers, const Playground &playground);
     
     /*
-    * Get robots last known position 
+    * Get robots last known position (RobotTrace)
+    * by robot id
     */
     RobotTrace queryRobot(unsigned id);
 
@@ -36,7 +37,7 @@ class RobotTraffic : public aruco::Marker {
     std::map< int, RobotTrace > robotposes;
     
     /*
-    * Calc robot pose depeding relative to playground
+    * Calc abs robot pose
     */
     cv::Mat calcPose(const aruco::Marker &marker) const;
     
