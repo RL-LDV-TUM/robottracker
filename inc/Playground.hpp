@@ -14,7 +14,7 @@ class Playground : public aruco::Marker {
   public:
   
     Playground(float width = -1, float height = -1);
-    ~Playground() {}
+    ~Playground() {};
 
     void calculateExtrinsics(float markerSize, const aruco::CameraParameters &CP, bool setYPerperdicular=true) throw(cv::Exception) {};
     
@@ -22,6 +22,8 @@ class Playground : public aruco::Marker {
 
     void draw(cv::Mat &in, cv::Scalar color, int lineWidth) const;
     
+    float getWidth() const {return psize.width;}
+    float getHeight() const {return psize.height;}
     
   protected:
   

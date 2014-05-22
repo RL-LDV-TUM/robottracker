@@ -50,6 +50,9 @@ int main(int argc,char **argv)
 	      videoCapturer.set(CV_CAP_PROP_FRAME_WIDTH, captureDimensions.width);
 	      videoCapturer.set(CV_CAP_PROP_FRAME_HEIGHT, captureDimensions.height);
 	      
+	      // frame rate
+	      videoCapturer.set(CV_CAP_PROP_FPS, 12);
+	      
 	      if (!videoCapturer.isOpened())
 	      {
             cerr<<"Could not open camera"<<endl;
@@ -78,8 +81,8 @@ int main(int argc,char **argv)
         /**************
         * Create GUI
         ***************/
-        //cv::namedWindow("thres",1);
-        cv::namedWindow("image",1);
+        //cv::namedWindow("thres", CV_WINDOW_NORMAL | CV_WINDOW_KEEPRATIO | CV_GUI_EXPANDED);
+        cv::namedWindow("image", CV_WINDOW_NORMAL | CV_WINDOW_KEEPRATIO | CV_GUI_EXPANDED);
         char key = 0;
         
         
@@ -102,14 +105,21 @@ int main(int argc,char **argv)
             // playground
             PlaygroundDetector pDetector;
             //Playground playground(28.0f, 20.0f); // test playground: DIN A4 TODO!
-            Playground playground(100.0f, 70.0f); // Real Playground
+            Playground playground(98.0f, 68.0f); // Real Playground
             
            if( pDetector.detect(mDetector.getThresholdedImage(), playground, inputImage) )
             {
               playground.calculateExtrinsics(cameraParameters);
-              playground.draw(inputImage,cv::Scalar(0,0,255),1);
+              playground.draw(inputImage,cv::Scalar(0,0,255),4);
               //markers.push_back(playground);
             }
+            
+            // draw stored playground 
+            if(robotTraffic.getPlayground().isValid())
+            {
+              robotTraffic.getPlayground().draw(inputImage,cv::Scalar(255,0,0),1);
+            }
+
             
             // store positions
             robotTraffic.updatePositions(markers, playground);

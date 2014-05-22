@@ -29,6 +29,11 @@ class RobotTraffic : public aruco::Marker {
     * by robot id
     */
     RobotTrace queryRobot(unsigned id);
+    
+    /*
+    * Get stored Playground
+    */
+    Playground getPlayground() {return playGround;}
 
   protected:
     
