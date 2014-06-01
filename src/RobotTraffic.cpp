@@ -40,9 +40,9 @@ void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, co
 * Get robots last known position (RobotTrace)
 * by robot id
 */
-RobotTrace RobotTraffic::queryRobot(unsigned id)
+RobotTrace RobotTraffic::queryRobot(unsigned id) const
 {
-  std::map< int, RobotTrace >::iterator trace;
+  std::map< int, RobotTrace >::const_iterator trace;
   trace = robotposes.find(id);
   
   if(trace != robotposes.end())

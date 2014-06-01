@@ -28,7 +28,7 @@ class RobotTraffic : public aruco::Marker {
     * Get robots last known position (RobotTrace)
     * by robot id
     */
-    RobotTrace queryRobot(unsigned id);
+    RobotTrace queryRobot(unsigned id) const;
     
     /*
     * Get stored Playground

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <thread>
 
 #include <aruco/aruco.h>
 #include <aruco/cvdrawingutils.h>
@@ -8,6 +9,7 @@
 
 #include "PlaygroundDetector.hpp"
 #include "RobotTraffic.hpp"
+#include "TrafficServer.hpp"
 
 int main(int argc,char **argv)
 {
@@ -40,7 +42,8 @@ int main(int argc,char **argv)
         aruco::CameraParameters cameraParameters;
         RobotTraffic robotTraffic;
         
-        
+        TrafficServer tserver;
+        tserver.setRobotTraffic(&robotTraffic);
         
         /**************
         * Open Camera
@@ -89,6 +92,11 @@ int main(int argc,char **argv)
         /**************
         * Run
         ***************/
+        
+        // server
+        std::thread srvThread (&TrafficServer::run, tserver);
+        
+        // vision
         while ( key!=27 && videoCapturer.grab())
         {
             videoCapturer.retrieve(inputImage);

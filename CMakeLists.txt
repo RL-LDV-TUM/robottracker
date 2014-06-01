@@ -15,9 +15,13 @@ add_library(tracker
   src/PlaygroundDetector.cpp
   src/Playground.cpp
   src/RobotTraffic.cpp
+  src/TrafficServer.cpp
 )
 
 target_link_libraries(tracker ${aruco_LIBS})
 
 add_executable(tracker_main src/tracker_main.cpp)
 target_link_libraries(tracker_main  tracker)
+
+add_executable(servertest_main src/servertest_main.cpp)
+target_link_libraries(servertest_main  tracker)
