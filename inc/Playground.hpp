@@ -20,7 +20,7 @@ class Playground : public aruco::Marker {
     
     void calculateExtrinsics(const aruco::CameraParameters &CP) throw(cv::Exception);
 
-    void draw(cv::Mat &in, cv::Scalar color, int lineWidth) const;
+    void draw(cv::Mat &in, cv::Scalar color, int lineWidth, const aruco::CameraParameters &CP) const;
     
     static void drawLockedLabel(cv::Mat &image, cv::Point pos);
     

@@ -47,7 +47,7 @@ void PlaygroundDetector::filterContours(const Contours &contours, Contours &filt
     if(contours[i].size() > 20)
     {
       double area = cv::contourArea(contours[i]);
-      if(area > 250 && area < 1500)
+      if(area > 200 && area < 1500)
       {
         std::vector<cv::Point> approxCurve;
         cv::approxPolyDP(contours[i], approxCurve, double ( contours[i].size() ) *0.01 , true );

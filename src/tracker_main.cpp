@@ -126,14 +126,14 @@ int main(int argc,char **argv)
             if(!lockPlayground && pDetector.detect(mDetector.getThresholdedImage(), playground, inputImage) )
             {
               playground.calculateExtrinsics(cameraParameters);
-              playground.draw(inputImage,cv::Scalar(0,0,255),4);
+              playground.draw(inputImage,cv::Scalar(0,0,255),4,cameraParameters);
             }
             
             // draw stored playground 
             if(robotTraffic.getPlayground().isValid())
             {
               cv::Scalar color = (lockPlayground) ? cv::Scalar(0,255,0) : cv::Scalar(0,134,209);
-              robotTraffic.getPlayground().draw(inputImage,color,1);
+              robotTraffic.getPlayground().draw(inputImage,color,1,cameraParameters);
             }
             
             // draw playground lock notice

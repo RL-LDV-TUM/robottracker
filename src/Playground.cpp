@@ -5,7 +5,7 @@ Playground::Playground(float width, float height) : aruco::Marker(), psize(cv::S
   id = 0;
 }
 
-void Playground::draw(cv::Mat &in, cv::Scalar color, int lineWidth) const
+void Playground::draw(cv::Mat &in, cv::Scalar color, int lineWidth, const aruco::CameraParameters &CP) const
 {
     if (size()!=4) return;
     cv::line( in,(*this)[0],(*this)[1],color,lineWidth,CV_AA);
@@ -17,6 +17,16 @@ void Playground::draw(cv::Mat &in, cv::Scalar color, int lineWidth) const
     putText(in, "B", (*this)[1], cv::FONT_HERSHEY_SIMPLEX, 2, color, 1, CV_AA);
     putText(in, "C", (*this)[2], cv::FONT_HERSHEY_SIMPLEX, 2, color, 1, CV_AA);
     putText(in, "D", (*this)[3], cv::FONT_HERSHEY_SIMPLEX, 2, color, 1, CV_AA);
+    
+    // draw 3 axes
+    std::vector<cv::Point3f> axes = {cv::Point3f(0,0,0),
+                                     cv::Point3f(10,0,0), cv::Point3f(0,10,0), cv::Point3f(0,0,10)};
+    std::vector<cv::Point2f> imagePoints;
+    cv::projectPoints(axes, Rvec, Tvec, CP.CameraMatrix, CP.Distorsion, imagePoints);
+    
+    cv::line( in, imagePoints[0],imagePoints[1],cv::Scalar(0,0,255),lineWidth,CV_AA);
+    cv::line( in, imagePoints[0],imagePoints[2],cv::Scalar(255,0,0),lineWidth,CV_AA);
+    cv::line( in, imagePoints[0],imagePoints[3],cv::Scalar(0,255,0),lineWidth,CV_AA);
 
 }
 
@@ -32,8 +42,11 @@ void Playground::calculateExtrinsics(const aruco::CameraParameters &CP)throw(cv:
     // TODO
     
     cv::Size halfSize = cv::Size(psize.width*0.5f, psize.height*0.5f);
- 
+
     cv::Mat ObjPoints(4,3,CV_32FC1);
+    ObjPoints.at<float>(0,0)=-halfSize.width;
+    ObjPoints.at<float>(0,1)=-halfSize.height;
+    ObjPoints.at<float>(0,2)=0;
     ObjPoints.at<float>(1,0)=-halfSize.width;
     ObjPoints.at<float>(1,1)=halfSize.height;
     ObjPoints.at<float>(1,2)=0;
@@ -43,9 +56,7 @@ void Playground::calculateExtrinsics(const aruco::CameraParameters &CP)throw(cv:
     ObjPoints.at<float>(3,0)=halfSize.width;
     ObjPoints.at<float>(3,1)=-halfSize.height;
     ObjPoints.at<float>(3,2)=0;
-    ObjPoints.at<float>(0,0)=-halfSize.width;
-    ObjPoints.at<float>(0,1)=-halfSize.height;
-    ObjPoints.at<float>(0,2)=0;
+
 
     cv::Mat ImagePoints(4,2,CV_32FC1);
 
@@ -57,9 +68,9 @@ void Playground::calculateExtrinsics(const aruco::CameraParameters &CP)throw(cv:
     }
     
     cv::Mat raux,taux;
-    cv::solvePnP(ObjPoints, ImagePoints, CP.CameraMatrix, CP.Distorsion,raux,taux);
+    cv::solvePnP(ObjPoints, ImagePoints, CP.CameraMatrix, CP.Distorsion, raux, taux);
     raux.convertTo(Rvec,CV_32F);
-    taux.convertTo(Tvec ,CV_32F);
+    taux.convertTo(Tvec,CV_32F);
     
 }
 

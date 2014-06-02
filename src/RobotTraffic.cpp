@@ -31,7 +31,9 @@ void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, co
       
       robotposes[robotMarker.id] = RobotTrace(relPose, std::time(0));
       
-      std::cout << "Found Marker: " << robotMarker.id << "|X:" << relPose.at<float>(0,3) + playground.getWidth()*0.5f << "Y:" << relPose.at<float>(1,3) + playground.getHeight()*0.5f << std::endl;
+      cv::Point pos(relPose.at<float>(0,3), relPose.at<float>(1,3));
+      
+      std::cout << "Found Marker: " << robotMarker.id << "|X:" << pos.x + playground.getWidth()*0.5f << "(" << pos.x << ") Y:" << pos.y + playground.getHeight()*0.5f << "(" << pos.y << ")" << std::endl;
     }
   }
 }
