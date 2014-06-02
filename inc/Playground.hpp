@@ -22,6 +22,8 @@ class Playground : public aruco::Marker {
 
     void draw(cv::Mat &in, cv::Scalar color, int lineWidth) const;
     
+    static void drawLockedLabel(cv::Mat &image, cv::Point pos);
+    
     float getWidth() const {return psize.width;}
     float getHeight() const {return psize.height;}
     

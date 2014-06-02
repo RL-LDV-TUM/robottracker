@@ -18,7 +18,7 @@ int main(int argc,char **argv)
         if (argc<1)
         {
           cerr<<"Invalid number of arguments"<<endl;
-          cerr<<"Usage: [CameraId] [Camera.yml]"<<endl;
+          cerr<<"Usage: [CameraId] [Camera.yml] [markerlength(cm)]"<<endl;
           return false;
         }
         
@@ -29,7 +29,7 @@ int main(int argc,char **argv)
 
         unsigned cameraId = (argc > 1) ? std::atoi(argv[1]) : 0;
         std::string intrinsicFile = (argc > 2) ? argv[2] : "camera.yml";
-        unsigned markerSize = 7; // TODO
+        float markerSize = (argc > 3) ? std::atof(argv[3]) : 4.8f;
         
         
         /**************
@@ -79,6 +79,7 @@ int main(int argc,char **argv)
         }
         
         mDetector.setCornerRefinementMethod(aruco::MarkerDetector::LINES);
+        mDetector.setMinMaxSize(0.01, 0.5);
         //mDetector.setThresholdParams(7, 7);
         
         /**************
@@ -87,6 +88,7 @@ int main(int argc,char **argv)
         //cv::namedWindow("thres", CV_WINDOW_NORMAL | CV_WINDOW_KEEPRATIO | CV_GUI_EXPANDED);
         cv::namedWindow("image", CV_WINDOW_NORMAL | CV_WINDOW_KEEPRATIO | CV_GUI_EXPANDED);
         char key = 0;
+        bool lockPlayground = false;
         
         
         /**************
@@ -101,12 +103,18 @@ int main(int argc,char **argv)
         {
             videoCapturer.retrieve(inputImage);
             
-            mDetector.detect(inputImage,markers,cameraParameters,markerSize);
+              // mute chatty library :-/
+              std::streambuf* cout_sbuf = std::cout.rdbuf(); // save original sbuf
+              std::ofstream   fout("/dev/null");
+              std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'
+            
+            mDetector.detect(inputImage,markers,cameraParameters,markerSize, false);
+            
+              // unmute original cout stream buffer
+              std::cout.rdbuf(cout_sbuf);
             
             for (unsigned i=0;i<markers.size();i++)
             {
-                //cout<<markers[i]<<endl;
-                markers[i].calculateExtrinsics(7.0f, cameraParameters, false);
                 markers[i].draw(inputImage,cv::Scalar(0,0,255),1);
             }
             
@@ -115,37 +123,53 @@ int main(int argc,char **argv)
             //Playground playground(28.0f, 20.0f); // test playground: DIN A4 TODO!
             Playground playground(98.0f, 68.0f); // Real Playground
             
-           if( pDetector.detect(mDetector.getThresholdedImage(), playground, inputImage) )
+            if(!lockPlayground && pDetector.detect(mDetector.getThresholdedImage(), playground, inputImage) )
             {
               playground.calculateExtrinsics(cameraParameters);
               playground.draw(inputImage,cv::Scalar(0,0,255),4);
-              //markers.push_back(playground);
             }
             
             // draw stored playground 
             if(robotTraffic.getPlayground().isValid())
             {
-              robotTraffic.getPlayground().draw(inputImage,cv::Scalar(255,0,0),1);
+              cv::Scalar color = (lockPlayground) ? cv::Scalar(0,255,0) : cv::Scalar(0,134,209);
+              robotTraffic.getPlayground().draw(inputImage,color,1);
             }
-
+            
+            // draw playground lock notice
+            if(lockPlayground)
+            {
+              Playground::drawLockedLabel(inputImage, cv::Point(50,50));
+            }
             
             // store positions
             robotTraffic.updatePositions(markers, playground);
-            
-            // key == d // for debug ;-)
-            if(key == 100)
-            {
-              std::cout << "0:" << robotTraffic.queryRobot(0).first << std::endl;
-              std::cout << "9:" << robotTraffic.queryRobot(9).first << std::endl;
-            }
+
             
             //cv::imshow("thres",mDetector.getThresholdedImage());
             cv::imshow("image",inputImage);
             
+            
+            // user interface ;-)
+            switch(key)
+            {
+              case 100: // d: debug
+                // do sth
+              break;
+              
+              case 108: // l: lock playground
+                lockPlayground = !lockPlayground;
+              break;
+            }
+            
             //wait for key to be pressed
             key=cv::waitKey(10);
         
-        }   
+        }
+        
+        //  at the end: shutdown TrafficServer
+        tserver.shutDown();
+        srvThread.join();
 
     } catch (std::exception &ex)
     {

@@ -13,7 +13,7 @@ class TrafficServer {
   public:
   
     TrafficServer(unsigned port = 5005);
-    ~TrafficServer() {}
+    ~TrafficServer();
     
     /*
     * Set reference to RobotTraffic
@@ -25,6 +25,12 @@ class TrafficServer {
     * Run server loop
     */
     void run();
+    
+    /*
+    * Shutdown server
+    */
+    void shutDown();
+    
 
   protected:
     

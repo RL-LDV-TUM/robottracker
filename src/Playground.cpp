@@ -13,10 +13,10 @@ void Playground::draw(cv::Mat &in, cv::Scalar color, int lineWidth) const
     cv::line( in,(*this)[2],(*this)[3],color,lineWidth,CV_AA);
     cv::line( in,(*this)[3],(*this)[0],color,lineWidth,CV_AA);
     
-    putText(in, "A", (*this)[0], cv::FONT_HERSHEY_SIMPLEX, 2, color);
-    putText(in, "B", (*this)[1], cv::FONT_HERSHEY_SIMPLEX, 2, color);
-    putText(in, "C", (*this)[2], cv::FONT_HERSHEY_SIMPLEX, 2, color);
-    putText(in, "D", (*this)[3], cv::FONT_HERSHEY_SIMPLEX, 2, color);
+    putText(in, "A", (*this)[0], cv::FONT_HERSHEY_SIMPLEX, 2, color, 1, CV_AA);
+    putText(in, "B", (*this)[1], cv::FONT_HERSHEY_SIMPLEX, 2, color, 1, CV_AA);
+    putText(in, "C", (*this)[2], cv::FONT_HERSHEY_SIMPLEX, 2, color, 1, CV_AA);
+    putText(in, "D", (*this)[3], cv::FONT_HERSHEY_SIMPLEX, 2, color, 1, CV_AA);
 
 }
 
@@ -61,6 +61,10 @@ void Playground::calculateExtrinsics(const aruco::CameraParameters &CP)throw(cv:
     raux.convertTo(Rvec,CV_32F);
     taux.convertTo(Tvec ,CV_32F);
     
-    cout<<(*this)<<endl;
-    
+}
+
+void Playground::drawLockedLabel(cv::Mat &image, cv::Point pos)
+{
+  putText(image, "Playground Locked [l]", pos, 
+           cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0,255,0), 1, CV_AA);
 }

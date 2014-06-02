@@ -47,7 +47,7 @@ void PlaygroundDetector::filterContours(const Contours &contours, Contours &filt
     if(contours[i].size() > 20)
     {
       double area = cv::contourArea(contours[i]);
-      if(area > 100 && area < 1500)
+      if(area > 250 && area < 1500)
       {
         std::vector<cv::Point> approxCurve;
         cv::approxPolyDP(contours[i], approxCurve, double ( contours[i].size() ) *0.01 , true );
@@ -62,6 +62,7 @@ void PlaygroundDetector::filterContours(const Contours &contours, Contours &filt
         if(convexity > 0.25f && convexity < 0.45f && hull.size() == 5)
         {
           filteredContours.push_back(approxCurve);
+          //std::cout << "Area:" << area << " Convexity:" << convexity << std::endl;
         }
       }
     }
@@ -84,7 +85,7 @@ void PlaygroundDetector::filterContours2(const Contours &contours, Contours &fil
         std::vector<cv::Point> approxCurve;
         cv::approxPolyDP(contours[i], approxCurve, double ( contours[i].size() ) *0.01 , true );
         
-        if(approxCurve.size() != 6) continue;
+        if(approxCurve.size() < 4 || approxCurve.size() > 6) continue;
         
         std::vector<cv::Point> hull;
         cv::convexHull(approxCurve, hull);

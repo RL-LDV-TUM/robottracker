@@ -12,6 +12,11 @@ TrafficServer::TrafficServer(unsigned port) : portno(port)
     init();
 }
 
+TrafficServer::~TrafficServer()
+{
+    
+}
+
 void TrafficServer::init()
 {
 
@@ -48,20 +53,29 @@ void TrafficServer::init()
 */
 void TrafficServer::run()
 {
-  while (1) 
-    {
-        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-        if (newsockfd < 0)
-        {
-            std::cerr << "TrafficServer: ERROR on accept" << std::endl;
-            exit(1);
-        }
-        
+  while (sockfd) 
+  {
+      newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+      
+      if (newsockfd != -1)
+      {
         // Create comm thread
         std::thread commThread (&TrafficServer::communicate, *this, newsockfd );
         commThread.detach();
-        
-    }
+      } else {
+        std::cout << "TrafficServer: closed" << std::endl;
+        exit(0);
+      }
+  }
+  
+}
+
+/*
+* Shutdown server
+*/
+void TrafficServer::shutDown()
+{
+   shutdown(sockfd, 2);
 }
 
 /*
@@ -104,6 +118,4 @@ void TrafficServer::communicate(unsigned sock)
     }
     
     close(sock);
-
-
 }
