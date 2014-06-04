@@ -43,7 +43,7 @@ void Playground::calculateExtrinsics(const aruco::CameraParameters &CP)throw(cv:
     
     cv::Size halfSize = cv::Size(psize.width*0.5f, psize.height*0.5f);
 
-    cv::Mat ObjPoints(4,3,CV_32FC1);
+    cv::Mat ObjPoints(5,3,CV_32FC1);
     ObjPoints.at<float>(0,0)=-halfSize.width;
     ObjPoints.at<float>(0,1)=-halfSize.height;
     ObjPoints.at<float>(0,2)=0;
@@ -56,16 +56,26 @@ void Playground::calculateExtrinsics(const aruco::CameraParameters &CP)throw(cv:
     ObjPoints.at<float>(3,0)=halfSize.width;
     ObjPoints.at<float>(3,1)=-halfSize.height;
     ObjPoints.at<float>(3,2)=0;
+    ObjPoints.at<float>(4,0)=0;
+    ObjPoints.at<float>(4,1)=0;
+    ObjPoints.at<float>(4,2)=0;
 
 
-    cv::Mat ImagePoints(4,2,CV_32FC1);
+    cv::Mat ImagePoints(5,2,CV_32FC1);
+    cv::Point2f center(0,0);
 
     //Set image points from the marker
     for (int c=0;c<4;c++)
     {
-        ImagePoints.at<float>(c,0)=((*this)[c%4].x);
-        ImagePoints.at<float>(c,1)=((*this)[c%4].y);
+        cv::Point2f pt((*this)[c%4].x, (*this)[c%4].y);
+        
+        ImagePoints.at<float>(c,0)=pt.x;
+        ImagePoints.at<float>(c,1)=pt.y;
+        
+        center += pt;
     }
+    ImagePoints.at<float>(4,0)=(center.x*0.25f);
+    ImagePoints.at<float>(4,1)=(center.y*0.25f);
     
     cv::Mat raux,taux;
     cv::solvePnP(ObjPoints, ImagePoints, CP.CameraMatrix, CP.Distorsion, raux, taux);
