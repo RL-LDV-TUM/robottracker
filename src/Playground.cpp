@@ -1,6 +1,6 @@
 #include "Playground.hpp"
 
-Playground::Playground(float width, float height) : aruco::Marker(), psize(cv::Size(width, height))
+Playground::Playground(float width, float height, float cellLength) : aruco::Marker(), psize(cv::Size(width, height)), cellLength(cellLength)
 {
   id = 0;
 }

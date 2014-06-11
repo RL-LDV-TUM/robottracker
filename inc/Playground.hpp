@@ -13,7 +13,7 @@ class Playground : public aruco::Marker {
 
   public:
   
-    Playground(float width = -1, float height = -1);
+    Playground(float width = -1, float height = -1, float cellLength = 10);
     ~Playground() {};
 
     void calculateExtrinsics(float markerSize, const aruco::CameraParameters &CP, bool setYPerperdicular=true) throw(cv::Exception) {};
@@ -26,10 +26,12 @@ class Playground : public aruco::Marker {
     
     float getWidth() const {return psize.width;}
     float getHeight() const {return psize.height;}
+    float getCellLength() const {return cellLength;}
     
   protected:
   
     cv::Size psize;
+    float cellLength;
 
 };
 

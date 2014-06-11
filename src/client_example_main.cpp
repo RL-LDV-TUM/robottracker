@@ -51,35 +51,39 @@ int main(int argc,char **argv)
              exit(1);
         }	
         
-        
-        
-        /* Now ask for a message from the user, this message
-        * will be read by server
-        */
-        std::cout << "Enter Robot ID:";
-        
-        int robotId;
-        std::cin >> robotId;
-        
-        /* Send message to the server */
-        n = write(sockfd,(void*) &robotId,sizeof(robotId));
-        if (n < 0) 
+        while(true)
         {
-             perror("ERROR writing to socket");
-             exit(1);
-        }
         
-        /* Now read server response */
-        RobotMsg rmsg;
-        n = read(sockfd,&rmsg,sizeof(rmsg));
-        if (n < 0) 
-        {
-             perror("ERROR reading from socket");
-             exit(1);
+          /* Now ask for a message from the user, this message
+          * will be read by server
+          */
+          std::cout << "Enter Robot ID:";
+          
+          int robotId = 0;
+          std::cin >> robotId;
+          
+          if(robotId == 0) continue;
+          
+          /* Send message to the server */
+          n = write(sockfd,(void*) &robotId,sizeof(robotId));
+          if (n < 0) 
+          {
+               perror("ERROR writing to socket");
+               exit(1);
+          }
+          
+          /* Now read server response */
+          RobotMsg rmsg;
+          n = read(sockfd,&rmsg,sizeof(rmsg));
+          if (n < 0) 
+          {
+               perror("ERROR reading from socket");
+               exit(1);
+          }
+          
+          // show us the result
+          RobotMessage::print(&rmsg);
         }
-        
-        // show us the result
-        RobotMessage::print(&rmsg); 
         
         return 0;
         

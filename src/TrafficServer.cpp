@@ -86,26 +86,28 @@ void TrafficServer::communicate(unsigned sock)
     int n;
 
     int robotId;
+    
+    while(true)
+    {
 
-    n = read(sock,&robotId,sizeof(robotId));
-    if (n < 0)
-    {
-        std::cerr << "TrafficServer: ERROR reading from socket" << std::endl;
-        exit(1);
-    }
-    
-    RobotMsg msg = robotTraffic.queryRobot(robotId);
-    
-    // network byte order
-    // RobotMessage::hton(&msg);
-    
-    n = write(sock, &msg, sizeof(msg));
-    std::cout << "Msg (" << sizeof(msg) << " bytes) sent for Robot " << robotId << std::endl;
-    
-    if (n < 0) 
-    {
-        std::cerr << "TrafficServer: ERROR writing to socket" << std::endl;
-        exit(1);
+      n = read(sock,&robotId,sizeof(robotId));
+      if (n < 0)
+      {
+          break;
+      }
+      
+      RobotMsg msg = robotTraffic.queryRobot(robotId);
+      
+      // network byte order
+      // RobotMessage::hton(&msg);
+      
+      n = write(sock, &msg, sizeof(msg));
+      std::cout << "Msg (" << sizeof(msg) << " bytes) sent for Robot " << robotId << std::endl;
+      
+      if (n < 0) 
+      {
+          break;
+      }
     }
     
     close(sock);

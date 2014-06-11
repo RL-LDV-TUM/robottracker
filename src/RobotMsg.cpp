@@ -14,7 +14,7 @@ namespace RobotMessage
     std::cout << "Id:" << msg->id << std::endl 
     << "Sec:" << msg->sec  << std::endl
     << "X:" << msg->x <<" Y:" <<  msg->y <<" Z:" <<  msg->z << std::endl
-    << "xCell:" << msg->xCell << " yCell:" << msg->xCell << std::endl
+    << "xCell:" << msg->xCell << " yCell:" << msg->yCell << std::endl
     << "Angle:" << msg->angle << std::endl;
   }
 
