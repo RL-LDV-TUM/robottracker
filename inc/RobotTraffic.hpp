@@ -8,13 +8,16 @@
 #include <ctime>
 #include <mutex>
 #include <atomic>
+#include <cstdint>
 
 #include "PlaygroundDetector.hpp"
 
+#include "RobotMsg.hpp"
+
 typedef std::pair < cv::Mat, std::time_t > RobotTrace;
 
-class RobotTraffic : public aruco::Marker {
 
+class RobotTraffic : public aruco::Marker {
 
   public:
   
@@ -27,10 +30,10 @@ class RobotTraffic : public aruco::Marker {
     void updatePositions(const std::vector<aruco::Marker> &markers, const Playground &playground);
     
     /*
-    * Get robots last known position (RobotTrace)
+    * Get robots last known position (RobotMsg)
     * by robot id
     */
-    RobotTrace queryRobot(unsigned id);
+    RobotMsg queryRobot(int id);
     
     /*
     * Get stored Playground
@@ -50,6 +53,16 @@ class RobotTraffic : public aruco::Marker {
     * Calc abs robot pose
     */
     cv::Mat calcPose(const aruco::Marker &marker) const;
+    
+    /*
+    * Calc rounded cell from coordinates
+    */
+    cv::Point calcCell(const cv::Mat &pose);
+    
+    /*
+    * Calc robot rotation angle from pose
+    */
+    float calcAngle(const cv::Mat &pose);
     
     /*
     * calc inverse homog. 3D-Transformation mat

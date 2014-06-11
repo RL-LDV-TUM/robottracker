@@ -48,22 +48,51 @@ void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, co
 }
 
 /*
-* Get robots last known position (RobotTrace)
+* Get robots last known position (RobotMsg)
 * by robot id
 */
-RobotTrace RobotTraffic::queryRobot(unsigned id)
+RobotMsg RobotTraffic::queryRobot(int id)
 {
   reader_cnt++;
 
-  std::map< int, RobotTrace >::const_iterator trace;
-  trace = robotposes.find(id);
+  std::map< int, RobotTrace >::const_iterator trace_it;
+  trace_it = robotposes.find(id);
   
-  if(trace != robotposes.end())
-    return trace->second;
-  else
-    return RobotTrace(cv::Mat::eye(4, 4, CV_32F), 0);
+  RobotMsg msg;
+  
+  // not found 
+  if(trace_it == robotposes.end())
+  {
+    msg.id = 0;
+    msg.sec = -1;
+    msg.x = 0.0f;
+    msg.y = 0.0f;
+    msg.z = 0.0f;
+    msg.xCell = 0;
+    msg.yCell = 0;
+    msg.angle = 0.0f;
     
+  // found
+  } else {
+  
+    const RobotTrace trace = trace_it->second;
+    const cv::Mat &pose = trace.first;
+    const cv::Point cell = calcCell(pose);
+      
+    msg.id = id;
+    msg.sec = difftime(std::time(0), trace.second);
+    msg.x = pose.at<float>(0,3);
+    msg.y = pose.at<float>(1,3);
+    msg.z = pose.at<float>(2,3);
+    msg.xCell = cell.x;
+    msg.yCell = cell.y;
+    msg.angle = calcAngle(pose);
+    
+  }
+  
   reader_cnt--;
+  
+  return msg;
 
 }
 
@@ -90,6 +119,26 @@ cv::Mat RobotTraffic::calcPose(const aruco::Marker &marker) const
   absPose.at<float>(3,3) = 1;
   
   return absPose;
+}
+
+/*
+* Calc rounded cell from coordinates
+*/
+cv::Point RobotTraffic::calcCell(const cv::Mat &pose)
+{
+  unsigned x = pose.at<float> (0,3) / playGround.getWidth();
+  unsigned y = pose.at<float> (1,3) / playGround.getHeight();
+  return cv::Point(x, y);
+}
+
+/*
+* Calc robot rotation angle from pose
+*/
+float RobotTraffic::calcAngle(const cv::Mat &pose)
+{
+  float r21 = pose.at<float> (1,0);
+  float r11 = pose.at<float> (0,0);
+  return atan2(r21, r11);
 }
 
 /*

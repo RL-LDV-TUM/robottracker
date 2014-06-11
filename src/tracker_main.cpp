@@ -182,6 +182,6 @@ int main(int argc,char **argv)
 
     } catch (std::exception &ex)
     {
-        cout<<"Exception :"<<ex.what()<<endl;
+        std::cout<<"Exception :"<<ex.what()<<std::endl;
     }
 }

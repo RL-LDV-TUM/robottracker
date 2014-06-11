@@ -18,7 +18,14 @@ add_library(tracker
   src/TrafficServer.cpp
 )
 
-target_link_libraries(tracker ${aruco_LIBS})
+add_library(RobotMsg
+  src/RobotMsg.cpp
+)
+
+target_link_libraries(tracker ${aruco_LIBS} RobotMsg)
 
 add_executable(tracker_main src/tracker_main.cpp)
 target_link_libraries(tracker_main  tracker)
+
+add_executable(client_example src/client_example_main.cpp)
+target_link_libraries(client_example  RobotMsg)

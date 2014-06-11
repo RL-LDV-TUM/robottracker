@@ -84,27 +84,23 @@ void TrafficServer::shutDown()
 void TrafficServer::communicate(unsigned sock)
 {
     int n;
-    char buffer[256];
 
-    bzero(buffer,256);
+    int robotId;
 
-    n = read(sock,buffer,255);
+    n = read(sock,&robotId,sizeof(robotId));
     if (n < 0)
     {
         std::cerr << "TrafficServer: ERROR reading from socket" << std::endl;
         exit(1);
     }
     
-    RobotTrace trace;
-    int robotId = atoi(buffer);
+    RobotMsg msg = robotTraffic.queryRobot(robotId);
     
-    trace = robotTraffic.queryRobot(robotId);
+    // network byte order
+    // RobotMessage::hton(&msg);
     
-    std::stringstream msg;
-    msg << robotId << ":" << trace.first << trace.second << endl;
-    std::string msg_str = msg.str();
-    
-    n = write(sock, msg_str.c_str(), msg_str.length());
+    n = write(sock, &msg, sizeof(msg));
+    std::cout << "Msg (" << sizeof(msg) << " bytes) sent for Robot " << robotId << std::endl;
     
     if (n < 0) 
     {
