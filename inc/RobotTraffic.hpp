@@ -6,6 +6,8 @@
 #include <vector>
 #include <map>
 #include <ctime>
+#include <mutex>
+#include <atomic>
 
 #include "PlaygroundDetector.hpp"
 
@@ -28,7 +30,7 @@ class RobotTraffic : public aruco::Marker {
     * Get robots last known position (RobotTrace)
     * by robot id
     */
-    RobotTrace queryRobot(unsigned id) const;
+    RobotTrace queryRobot(unsigned id);
     
     /*
     * Get stored Playground
@@ -41,6 +43,9 @@ class RobotTraffic : public aruco::Marker {
     cv::Mat pgPose_inv;
     std::map< int, RobotTrace > robotposes;
     
+    std::mutex write_mutex;
+    std::atomic_int reader_cnt;
+    
     /*
     * Calc abs robot pose
     */
@@ -50,6 +55,11 @@ class RobotTraffic : public aruco::Marker {
     * calc inverse homog. 3D-Transformation mat
     */
     cv::Mat inverseTransformation(const cv::Mat &mat) const;
+ 
+    /*
+    * Ensure no query is in progress
+    */
+    void waitForZeroReaders();
 };
 
 #endif

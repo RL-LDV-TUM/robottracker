@@ -12,14 +12,8 @@ class TrafficServer {
 
   public:
   
-    TrafficServer(unsigned port = 5005);
+    TrafficServer(RobotTraffic &robotTraffic, unsigned port = 5005);
     ~TrafficServer();
-    
-    /*
-    * Set reference to RobotTraffic
-    * used for robot lookups
-    */
-    void setRobotTraffic(const RobotTraffic * traffic) { robotTraffic = traffic; }
     
     /*
     * Run server loop
@@ -44,8 +38,8 @@ class TrafficServer {
     */
     void communicate(unsigned sock);
     
-    // ptr to constant RobotTraffic (disallow write from here)
-    const RobotTraffic * robotTraffic = 0;
+    // RobotTraffic for lookups
+    RobotTraffic &robotTraffic;
     
 };
 

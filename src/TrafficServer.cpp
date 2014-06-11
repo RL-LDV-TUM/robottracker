@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <thread>
 
-TrafficServer::TrafficServer(unsigned port) : portno(port)
+TrafficServer::TrafficServer(RobotTraffic &robotTraffic, unsigned port) : robotTraffic(robotTraffic), portno(port)
 {
     init();
 }
@@ -98,12 +98,7 @@ void TrafficServer::communicate(unsigned sock)
     RobotTrace trace;
     int robotId = atoi(buffer);
     
-    if(robotTraffic)
-    {
-      trace = robotTraffic->queryRobot(robotId);
-    } else {
-      trace = RobotTrace(cv::Mat::eye(4, 4, CV_32F), 0);
-    }
+    trace = robotTraffic.queryRobot(robotId);
     
     std::stringstream msg;
     msg << robotId << ":" << trace.first << trace.second << endl;
