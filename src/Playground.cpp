@@ -38,8 +38,6 @@ void Playground::calculateExtrinsics(const aruco::CameraParameters &CP)throw(cv:
     if (psize.width <=0 || psize.height <= 0) throw cv::Exception(9004,"width <=0 || height <= 0: invalid markerSize","calculateExtrinsics",__FILE__,__LINE__);
     if (!CP.isValid()) throw cv::Exception(9004,"!CP.isValid(): invalid camera parameters. It is not possible to calculate extrinsics","calculateExtrinsics",__FILE__,__LINE__);
     if (CP.CameraMatrix.rows==0 || CP.CameraMatrix.cols==0) throw cv::Exception(9004,"CameraMatrix is empty","calculateExtrinsics",__FILE__,__LINE__);
- 
-    // TODO
     
     cv::Size halfSize = cv::Size(psize.width*0.5f, psize.height*0.5f);
 

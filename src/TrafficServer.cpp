@@ -14,7 +14,7 @@ TrafficServer::TrafficServer(RobotTraffic &robotTraffic, unsigned port) : robotT
 
 TrafficServer::~TrafficServer()
 {
-    
+
 }
 
 void TrafficServer::init()
@@ -40,7 +40,7 @@ void TrafficServer::init()
          exit(1);
     }
     /* Now start listening for the clients, here 
-     * process will go in sleep mode and will wait 
+     * thread will go in sleep mode and will wait 
      * for the incoming connection 
      */
     listen(sockfd,5);
@@ -53,6 +53,8 @@ void TrafficServer::init()
 */
 void TrafficServer::run()
 {
+  std::cout << "TrafficServer: Started" << std::endl;
+
   while (sockfd) 
   {
       newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
@@ -63,8 +65,8 @@ void TrafficServer::run()
         std::thread commThread (&TrafficServer::communicate, *this, newsockfd );
         commThread.detach();
       } else {
-        std::cout << "TrafficServer: closed" << std::endl;
-        exit(0);
+        std::cout << "TrafficServer: Stopped" << std::endl;
+        break;
       }
   }
   
@@ -76,6 +78,7 @@ void TrafficServer::run()
 void TrafficServer::shutDown()
 {
    shutdown(sockfd, 2);
+   close(sockfd);
 }
 
 /*

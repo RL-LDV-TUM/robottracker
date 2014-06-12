@@ -1,7 +1,6 @@
 #include "RobotTraffic.hpp"
 
 #include <thread>
-#include <chrono>
 
 RobotTraffic::RobotTraffic() : pgPose_inv(cv::Mat::eye(4, 4, CV_32F)), reader_cnt(0)
 {
@@ -13,8 +12,9 @@ RobotTraffic::RobotTraffic() : pgPose_inv(cv::Mat::eye(4, 4, CV_32F)), reader_cn
 */
 void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, const Playground &playground)
 {
-  // lock data for reading threads
-  write_mutex.lock();
+  // prevent reading during update
+  std::unique_lock<std::mutex> lk(reader_mutex);
+  cv.wait(lk, [&]{return reader_cnt == 0;});
 
   if(playground.isValid())
   {
@@ -43,8 +43,10 @@ void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, co
     }
   }
   
-  // free data lock for reading threads
-  write_mutex.unlock();
+  // notify waiting readers
+  lk.unlock();
+  cv.notify_all();
+  
 }
 
 /*
@@ -53,7 +55,13 @@ void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, co
 */
 RobotMsg RobotTraffic::queryRobot(int id)
 {
-  reader_cnt++;
+  // prevent reading during update
+  {
+    std::unique_lock<std::mutex> lk(reader_mutex);
+    cv.wait(lk, [&]{return reader_cnt >= 0;});
+    reader_cnt++;
+  }
+  
 
   std::map< int, RobotTrace >::const_iterator trace_it;
   trace_it = robotposes.find(id);
@@ -89,8 +97,13 @@ RobotMsg RobotTraffic::queryRobot(int id)
     msg.angle = calcAngle(pose);
     
   }
-  
-  reader_cnt--;
+
+  // notify waiting update thread
+  {
+    std::lock_guard<std::mutex> lk(reader_mutex);
+    reader_cnt--;
+  }
+  cv.notify_all();
   
   return msg;
 
@@ -165,11 +178,3 @@ cv::Mat RobotTraffic::inverseTransformation(const cv::Mat &mat) const
   return inverse;
 }
 
-/*
-* Ensure no query is in progress
-*/
-void RobotTraffic::waitForZeroReaders()
-{
-  while(reader_cnt.load() > 0)
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-}

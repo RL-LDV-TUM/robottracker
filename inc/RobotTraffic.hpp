@@ -7,7 +7,7 @@
 #include <map>
 #include <ctime>
 #include <mutex>
-#include <atomic>
+#include <condition_variable>
 #include <cstdint>
 
 #include "PlaygroundDetector.hpp"
@@ -46,8 +46,9 @@ class RobotTraffic : public aruco::Marker {
     cv::Mat pgPose_inv;
     std::map< int, RobotTrace > robotposes;
     
-    std::mutex write_mutex;
-    std::atomic_int reader_cnt;
+    std::mutex reader_mutex;
+    std::condition_variable cv;
+    int reader_cnt;
     
     /*
     * Calc abs robot pose

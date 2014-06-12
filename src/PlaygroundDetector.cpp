@@ -62,7 +62,7 @@ void PlaygroundDetector::filterContours(const Contours &contours, Contours &filt
         if(convexity > 0.25f && convexity < 0.45f && hull.size() == 5)
         {
           filteredContours.push_back(approxCurve);
-          std::cout << "Area:" << area << " Convexity:" << convexity << std::endl;
+          //std::cout << "Area:" << area << " Convexity:" << convexity << std::endl;
         }
       }
     }
