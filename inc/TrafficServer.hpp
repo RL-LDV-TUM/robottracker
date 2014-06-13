@@ -38,7 +38,9 @@ class TrafficServer {
     */
     void communicate(unsigned sock);
     
-    // RobotTraffic for lookups
+    /*
+    * RobotTraffic for lookups
+    */
     RobotTraffic &robotTraffic;
     
 };

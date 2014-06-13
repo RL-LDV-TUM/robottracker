@@ -26,12 +26,14 @@ class RobotTraffic : public aruco::Marker {
     
     /*
     * Update positions of robots (and playground)
+    * (thread-safe)
     */
     void updatePositions(const std::vector<aruco::Marker> &markers, const Playground &playground);
     
     /*
     * Get robots last known position (RobotMsg)
     * by robot id
+    * (thread-safe)
     */
     RobotMsg queryRobot(int id);
     
@@ -44,8 +46,15 @@ class RobotTraffic : public aruco::Marker {
     
     Playground playGround;
     cv::Mat pgPose_inv;
+    
+    /*
+    * Traffic store
+    */
     std::map< int, RobotTrace > robotposes;
     
+    /*
+    * Sync stuff
+    */
     std::mutex reader_mutex;
     std::condition_variable cv;
     int reader_cnt;

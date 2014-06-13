@@ -6,37 +6,54 @@ PlaygroundDetector::PlaygroundDetector()
 
 }
 
-bool PlaygroundDetector::detect(const cv::Mat &thresImage, Playground &playground, cv::Mat &img)
+/*
+* Find Playground in thres image and calc its Extrinsics
+*/
+bool PlaygroundDetector::detect(const cv::Mat &thresImage, Playground &playground, aruco::CameraParameters &cameraParameters)
 {
+  // pg not valid
+  playground.id = -1;
+
+  // get all contours in thres image
   Contours contours;
   findContours(thresImage, contours);
   
+  // search for L shaped contours
   Contours filteredContours;
   filterContours(contours, filteredContours);
   
-    // TODO: remove!
-    cv::drawContours(img, filteredContours, -1, cv::Scalar(0,0,255), 1);
+    if(filteredContours.size() < 4) return false;
   
-  if(filteredContours.size() < 4) return false;
-  
+  // combine exatly 4 L-contours to one rectangle with 4 corners
   std::vector<cv::Point2f> corners; // max length: 4
-  extractCorners(filteredContours, corners);
+  extractPlayGroundCorners(filteredContours, corners);
   
-  if(corners.size() != 4) return false;
+    if(corners.size() != 4) return false;
   
   playground.resize(4); 
   std::copy(corners.begin(), corners.end(), playground.begin());
-
+  
+  // playground valid
+  playground.id = 0;
+  
+  // calc translation and rotation
+  playground.calculateExtrinsics(cameraParameters);
+  
   return true;
 }
 
-
+/*
+* Find all contours in thres image
+*/
 void PlaygroundDetector::findContours(const cv::Mat &thresImage, Contours &contours) const
 {
   cv::Mat thres = thresImage.clone();
   cv::findContours(thres, contours, cv::noArray(), CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
 }
 
+/*
+* Filter for L-shaped contours
+*/
 void PlaygroundDetector::filterContours(const Contours &contours, Contours &filteredContours) const
 {
 
@@ -49,6 +66,7 @@ void PlaygroundDetector::filterContours(const Contours &contours, Contours &filt
       double area = cv::contourArea(contours[i]);
       if(area > 200 && area < 1500)
       {
+        // smooth contour
         std::vector<cv::Point> approxCurve;
         cv::approxPolyDP(contours[i], approxCurve, double ( contours[i].size() ) *0.01 , true );
         
@@ -70,42 +88,10 @@ void PlaygroundDetector::filterContours(const Contours &contours, Contours &filt
   
 }
 
-void PlaygroundDetector::filterContours2(const Contours &contours, Contours &filteredContours) const
-{
-
-  filteredContours.clear();
-
-  for(unsigned i=0; i<contours.size(); i++)
-  {
-    if(contours[i].size() > 20)
-    {
-      double area = cv::contourArea(contours[i]);
-      if(area > 300 && area < 1500)
-      {
-        std::vector<cv::Point> approxCurve;
-        cv::approxPolyDP(contours[i], approxCurve, double ( contours[i].size() ) *0.01 , true );
-        
-        if(approxCurve.size() < 4 || approxCurve.size() > 6) continue;
-        
-        std::vector<cv::Point> hull;
-        cv::convexHull(approxCurve, hull);
-        
-        cv::Rect bounding = cv::boundingRect(approxCurve);
-        float convexity = area / cv::contourArea(hull);
-        float ratio = (float) bounding.height / bounding.width;
-        
-        if(convexity > 0.15f && convexity < 0.45f && ratio > 0.8f && ratio < 1.2f)
-        {
-          filteredContours.push_back(approxCurve);
-          std::cout << "Area:" << area << " Convexity:" << convexity << " Ratio:" << bounding.height << "-" << bounding.width << "=" << ratio << std::endl;
-        }
-      }
-    }
-  }
-  
-}
-
-void PlaygroundDetector::extractCorners(const Contours &filteredContours, std::vector<cv::Point2f> &corners) const
+/*
+* Combine exatly 4 L-contours to one rectangle with 4 corners
+*/
+void PlaygroundDetector::extractPlayGroundCorners(const Contours &filteredContours, std::vector<cv::Point2f> &corners) const
 {
 
     corners.clear();

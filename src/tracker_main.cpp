@@ -15,10 +15,10 @@ int main(int argc,char **argv)
 {
     try
     {
-        if (argc<1)
+        if (argc <= 1)
         {
-          cerr<<"Invalid number of arguments"<<endl;
-          cerr<<"Usage: [CameraId] [Camera.yml] [markerlength(cm)]"<<endl;
+          cerr<<"Invalid number of arguments:"<<endl;
+          cerr<<"\tUsage: [CameraId] [Camera.yml] [markerlength(cm)]"<<endl;
           return false;
         }
         
@@ -35,13 +35,17 @@ int main(int argc,char **argv)
         /**************
         * Vars
         ***************/
-        aruco::MarkerDetector mDetector;
         cv::VideoCapture videoCapturer;
-        std::vector<aruco::Marker> markers;
         cv::Mat inputImage;
         aruco::CameraParameters cameraParameters;
-        RobotTraffic robotTraffic;
         
+        aruco::MarkerDetector mDetector;
+        std::vector<aruco::Marker> markers;
+       
+        PlaygroundDetector pDetector;
+        Playground playground(98.0f, 68.0f, 10.0f); // Real Playground
+        
+        RobotTraffic robotTraffic;
         TrafficServer tserver(robotTraffic);
         
         /**************
@@ -57,7 +61,7 @@ int main(int argc,char **argv)
 	      
 	      if (!videoCapturer.isOpened())
 	      {
-            cerr<<"Could not open camera"<<endl;
+            std::cerr << "Could not open camera" << std::endl;
             return -1;
         }
         
@@ -66,7 +70,7 @@ int main(int argc,char **argv)
         
         if (inputImage.size() != captureDimensions)
         {
-           cerr<<"Camera dimension mismatch"<<endl;
+           std::cerr << "Camera dimension mismatch" << std::endl;
            return -1;
         }
 
@@ -84,12 +88,11 @@ int main(int argc,char **argv)
         /**************
         * Create GUI
         ***************/
-        //cv::namedWindow("thres", CV_WINDOW_NORMAL | CV_WINDOW_KEEPRATIO | CV_GUI_EXPANDED);
         cv::namedWindow("image", CV_WINDOW_NORMAL | CV_WINDOW_KEEPRATIO | CV_GUI_EXPANDED);
         char key = 0;
         bool pause = false;
         bool lockPlayground = false;
-        
+
         
         /**************
         * Run
@@ -105,52 +108,60 @@ int main(int argc,char **argv)
             if(!pause)
             {
             
+              /**************
+              * Detect
+              ***************/
+              
+              // get image from camera
               videoCapturer.retrieve(inputImage);
               
-                // mute chatty library :-/
-                std::streambuf* cout_sbuf = std::cout.rdbuf(); // save original sbuf
-                std::ofstream   fout("/dev/null");
-                std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'
+              // clear
+              markers.clear();
+              playground.id = -1;
               
+                        // mute chatty library :-/
+                        std::streambuf* cout_sbuf = std::cout.rdbuf(); // save original sbuf
+                        std::ofstream   fout("/dev/null");
+                        std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'
+              
+              // detect robot markers
               mDetector.detect(inputImage,markers,cameraParameters,markerSize, false);
               
-                // unmute original cout stream buffer
-                std::cout.rdbuf(cout_sbuf);
+                        // unmute original cout stream buffer
+                        std::cout.rdbuf(cout_sbuf);
               
+              // detect playground
+              if(!lockPlayground)
+                pDetector.detect(mDetector.getThresholdedImage(), playground, cameraParameters);
+
+              
+              // store positions of markers and playground
+              robotTraffic.updatePositions(markers, playground);
+              
+              
+              /**************
+              * Draw
+              ***************/
+              
+              // draw robot markers
               for (unsigned i=0;i<markers.size();i++)
               {
                   markers[i].draw(inputImage,cv::Scalar(0,0,255),1);
               }
               
-              // playground
-              PlaygroundDetector pDetector;
-              //Playground playground(28.0f, 20.0f, 3.0f); // test playground: DIN A4 TODO!
-              Playground playground(98.0f, 68.0f, 10.0f); // Real Playground
-              
-              if(!lockPlayground && pDetector.detect(mDetector.getThresholdedImage(), playground, inputImage) )
-              {
-                playground.calculateExtrinsics(cameraParameters);
-                playground.draw(inputImage,cv::Scalar(0,0,255),4,cameraParameters);
-              }
-              
-              // draw stored playground 
+              // draw stored playground, thick if just found
               if(robotTraffic.getPlayground().isValid())
               {
                 cv::Scalar color = (lockPlayground) ? cv::Scalar(0,255,0) : cv::Scalar(0,134,209);
-                robotTraffic.getPlayground().draw(inputImage,color,1,cameraParameters);
+                int lineSize = (playground.isValid()) ? 4 : 1;
+                robotTraffic.getPlayground().draw(inputImage,color,lineSize,cameraParameters);
               }
               
               // draw playground lock notice
               if(lockPlayground)
-              {
                 Playground::drawLockedLabel(inputImage, cv::Point(50,50));
-              }
               
-              // store positions
-              robotTraffic.updatePositions(markers, playground);
-
-              
-              //cv::imshow("thres",mDetector.getThresholdedImage());
+              // Show image
               cv::imshow("image",inputImage);
               
             }

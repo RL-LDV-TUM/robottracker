@@ -9,6 +9,7 @@ RobotTraffic::RobotTraffic() : pgPose_inv(cv::Mat::eye(4, 4, CV_32F)), reader_cn
 
 /*
 * Update positions of robots (and playground)
+* (thread-safe)
 */
 void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, const Playground &playground)
 {
@@ -16,6 +17,7 @@ void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, co
   std::unique_lock<std::mutex> lk(reader_mutex);
   cv.wait(lk, [&]{return reader_cnt == 0;});
 
+  // store new playground
   if(playground.isValid())
   {
     playGround = playground;
@@ -23,9 +25,11 @@ void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, co
     pgPose_inv = inverseTransformation(pgPose);
     robotposes[playground.id] = RobotTrace(pgPose, std::time(0));
     
+    // debug output
     std::cout << "Found Playground: " << pgPose << std::endl;
   }
   
+  // store new markers
   if(playGround.isValid())
   {
     for( aruco::Marker robotMarker : markers)
@@ -37,6 +41,7 @@ void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, co
       
       robotposes[robotMarker.id] = RobotTrace(relPose, std::time(0));
       
+      // debug output
       cv::Point2f pos(relPose.at<float>(0,3), relPose.at<float>(1,3));
       
       std::cout << "Found Marker: " << robotMarker.id << "|X:" << pos.x + playground.getWidth()*0.5f << "(" << pos.x << ") Y:" << pos.y + playground.getHeight()*0.5f << "(" << pos.y << ")" << std::endl;
@@ -52,6 +57,7 @@ void RobotTraffic::updatePositions(const std::vector<aruco::Marker> &markers, co
 /*
 * Get robots last known position (RobotMsg)
 * by robot id
+* (thread-safe)
 */
 RobotMsg RobotTraffic::queryRobot(int id)
 {
@@ -118,7 +124,6 @@ cv::Mat RobotTraffic::calcPose(const aruco::Marker &marker) const
   cv::Mat R(3,3,CV_32FC1);
   cv::Rodrigues(marker.Rvec, R);
   
-  
   cv::Mat absPose(4,4,CV_32FC1,cv::Scalar::all(0));
 
   // copy the Rotation matrix in the first 3*3 indeces
@@ -139,13 +144,15 @@ cv::Mat RobotTraffic::calcPose(const aruco::Marker &marker) const
 */
 cv::Point RobotTraffic::calcCell(const cv::Mat &pose)
 {
-  
+  // make relative to left uppe corner
   float x = pose.at<float> (0,3) + playGround.getWidth()*0.5f;
   float y = pose.at<float> (1,3) + playGround.getWidth()*0.5f;
+  
+  // bound to playground size
   x = std::min(std::max(x, 0.0f), playGround.getWidth());
   y = std::min(std::max(y, 0.0f), playGround.getHeight());
-std::cout << x << "|" << y << std::endl;
-  return cv::Point(x/playGround.getCellLength(), y/playGround.getCellLength());
+
+  return cv::Point(x/playGround.getCellLength()+1, y/playGround.getCellLength()+1);
 }
 
 /*
@@ -155,6 +162,7 @@ float RobotTraffic::calcAngle(const cv::Mat &pose)
 {
   float r21 = pose.at<float> (1,0);
   float r11 = pose.at<float> (0,0);
+  
   return atan2(r21, r11);
 }
 

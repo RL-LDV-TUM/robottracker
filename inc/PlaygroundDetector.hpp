@@ -18,14 +18,28 @@ class PlaygroundDetector {
     PlaygroundDetector();
     ~PlaygroundDetector() {}
 
-    bool detect(const cv::Mat &thresImage, Playground &Playground, cv::Mat &img);
+    /*
+    * Find Playground in thres image and calc its Extrinsics
+    */
+    bool detect(const cv::Mat &thresImage, Playground &Playground, aruco::CameraParameters &cameraParameters);
         
 
   private:
+    
+    /*
+    * Find all contours in thres image
+    */
     void findContours(const cv::Mat &thresImage, Contours &contours) const;
+    
+    /*
+    * Filter for L-shaped contours
+    */
     void filterContours(const Contours &contours, Contours &filteredContours) const;
-    void filterContours2(const Contours &contours, Contours &filteredContours) const;
-    void extractCorners(const Contours &filteredContours, std::vector<cv::Point2f> &corners) const;
+    
+    /*
+    * Combine exatly 4 L-contours to one rectangle with 4 corners
+    */
+    void extractPlayGroundCorners(const Contours &filteredContours, std::vector<cv::Point2f> &corners) const;
     
 
 };

@@ -36,7 +36,7 @@ void TrafficServer::init()
     // Now bind the host address using bind() call.
     if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
     {
-         std::cerr << "TrafficServer: ERROR on binding" << std::endl;
+         std::cerr << "TrafficServer: ERROR on binding socket to port, pls retry later..." << std::endl;
          exit(1);
     }
     /* Now start listening for the clients, here 
@@ -101,7 +101,7 @@ void TrafficServer::communicate(unsigned sock)
       
       RobotMsg msg = robotTraffic.queryRobot(robotId);
       
-      // network byte order
+      // network byte order, needed?
       // RobotMessage::hton(&msg);
       
       n = write(sock, &msg, sizeof(msg));
