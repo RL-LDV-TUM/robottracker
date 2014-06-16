@@ -62,7 +62,11 @@ int main(int argc,char **argv)
           int robotId = 0;
           std::cin >> robotId;
           
-          if(robotId == 0) continue;
+          if(robotId <= 0) {
+            std::cin.clear();
+		        std::cin.ignore(256, '\n');
+            continue;
+          }
           
           /* Send message to the server */
           n = write(sockfd,(void*) &robotId,sizeof(robotId));
