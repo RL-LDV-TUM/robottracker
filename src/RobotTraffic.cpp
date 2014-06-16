@@ -96,7 +96,7 @@ RobotMsg RobotTraffic::queryRobot(int id)
     msg.id = id;
     msg.sec = difftime(std::time(0), trace.second);
     msg.x = pose.at<float>(0,3) + playGround.getWidth()*0.5f;
-    msg.y = pose.at<float>(1,3) + playGround.getWidth()*0.5f;
+    msg.y = pose.at<float>(1,3) + playGround.getHeight()*0.5f;
     msg.z = pose.at<float>(2,3);
     msg.xCell = cell.x;
     msg.yCell = cell.y;
@@ -146,7 +146,7 @@ cv::Point RobotTraffic::calcCell(const cv::Mat &pose)
 {
   // make relative to left uppe corner
   float x = pose.at<float> (0,3) + playGround.getWidth()*0.5f;
-  float y = pose.at<float> (1,3) + playGround.getWidth()*0.5f;
+  float y = pose.at<float> (1,3) + playGround.getHeight()*0.5f;
   
   // bound to playground size
   x = std::min(std::max(x, 0.0f), playGround.getWidth());
