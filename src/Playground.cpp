@@ -8,7 +8,7 @@ Playground::Playground(float width, float height, float cellLength) : aruco::Mar
 /*
 * Draw playground
 */
-void Playground::draw(cv::Mat &in, cv::Scalar color, int lineWidth, const aruco::CameraParameters &CP) const
+void Playground::draw(cv::Mat &in, cv::Scalar color, int lineWidth) const
 {
     if (size()!=4) return;
     cv::line( in,(*this)[0],(*this)[1],color,lineWidth,CV_AA);
@@ -22,14 +22,16 @@ void Playground::draw(cv::Mat &in, cv::Scalar color, int lineWidth, const aruco:
     putText(in, "D", (*this)[3], cv::FONT_HERSHEY_SIMPLEX, 2, color, 1, CV_AA);
     
     // draw 3 axes
+    /*
     std::vector<cv::Point3f> axes = {cv::Point3f(0,0,0),
                                      cv::Point3f(10,0,0), cv::Point3f(0,10,0), cv::Point3f(0,0,10)};
     std::vector<cv::Point2f> imagePoints;
-    cv::projectPoints(axes, Rvec, Tvec, CP.CameraMatrix, CP.Distorsion, imagePoints);
+    cv::projectPoints(axes, Rvec, Tvec, cameraParameters.CameraMatrix, cameraParameters.Distorsion, imagePoints);
     
     cv::line( in, imagePoints[0],imagePoints[1],cv::Scalar(0,0,255),lineWidth,CV_AA);
     cv::line( in, imagePoints[0],imagePoints[2],cv::Scalar(255,0,0),lineWidth,CV_AA);
     cv::line( in, imagePoints[0],imagePoints[3],cv::Scalar(0,255,0),lineWidth,CV_AA);
+    */
 
 }
 

@@ -29,7 +29,7 @@ class Playground : public aruco::Marker {
     /*
     * Draw playground
     */
-    void draw(cv::Mat &in, cv::Scalar color, int lineWidth, const aruco::CameraParameters &CP) const;
+    void draw(cv::Mat &in, cv::Scalar color, int lineWidth) const;
     
     /*
     * Draw Playground locked label

@@ -16,6 +16,7 @@ add_library(tracker
   src/Playground.cpp
   src/RobotTraffic.cpp
   src/TrafficServer.cpp
+  src/HUD.cpp
 )
 
 add_library(RobotMsg

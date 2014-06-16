@@ -4,12 +4,12 @@
 #include <thread>
 
 #include <aruco/aruco.h>
-#include <aruco/cvdrawingutils.h>
 #include <opencv2/highgui/highgui.hpp>
 
 #include "PlaygroundDetector.hpp"
 #include "RobotTraffic.hpp"
 #include "TrafficServer.hpp"
+#include "HUD.hpp"
 
 int main(int argc,char **argv)
 {
@@ -36,7 +36,7 @@ int main(int argc,char **argv)
         * Vars
         ***************/
         cv::VideoCapture videoCapturer;
-        cv::Mat inputImage;
+        cv::Mat inputImage, drawImage;
         aruco::CameraParameters cameraParameters;
         
         aruco::MarkerDetector mDetector;
@@ -137,34 +137,24 @@ int main(int argc,char **argv)
               
               // store positions of markers and playground
               robotTraffic.updatePositions(markers, playground);
-              
-              
-              /**************
-              * Draw
-              ***************/
-              
-              // draw robot markers
-              for (unsigned i=0;i<markers.size();i++)
-              {
-                  markers[i].draw(inputImage,cv::Scalar(0,0,255),1);
-              }
-              
-              // draw stored playground, thick if just found
-              if(robotTraffic.getPlayground().isValid())
-              {
-                cv::Scalar color = (lockPlayground) ? cv::Scalar(0,255,0) : cv::Scalar(0,134,209);
-                int lineSize = (playground.isValid()) ? 4 : 1;
-                robotTraffic.getPlayground().draw(inputImage,color,lineSize,cameraParameters);
-              }
-              
-              // draw playground lock notice
-              if(lockPlayground)
-                Playground::drawLockedLabel(inputImage, cv::Point(50,50));
-              
-              // Show image
-              cv::imshow("image",inputImage);
-              
             }
+              
+            /**************
+            * Draw
+            ***************/
+            
+            drawImage = inputImage.clone();
+            
+            HUD hud(drawImage);
+            
+            hud.drawPlayground(robotTraffic.getPlayground(), playground.isValid(), lockPlayground);
+  
+            hud.drawMarkers(markers);
+            
+            hud.drawLegend(pause, lockPlayground);
+            
+            // Show image
+            cv::imshow("image", drawImage);
             
             // user interface ;-)
             switch(key)
