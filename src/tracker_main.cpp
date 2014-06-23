@@ -100,7 +100,7 @@ int main(int argc,char **argv)
         ***************/
         
         // server
-        std::thread srvThread (&TrafficServer::run, tserver);
+        std::thread srvThread (&TrafficServer::run, &tserver);
         
         // vision
         while ( key!=27 && videoCapturer.grab())

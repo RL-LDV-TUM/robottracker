@@ -63,7 +63,7 @@ void TrafficServer::run()
       if (newsockfd != -1)
       {
         // Create comm thread
-        std::thread commThread (&TrafficServer::communicate, *this, newsockfd );
+        std::thread commThread (&TrafficServer::communicate, &(*this), newsockfd );
         commThread.detach();
       } else {
         std::cout << "TrafficServer: Stopped" << std::endl;
