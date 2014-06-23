@@ -44,6 +44,7 @@ int main(int argc,char **argv)
        
         PlaygroundDetector pDetector;
         Playground playground(98.0f, 68.0f, 10.0f); // Real Playground
+        Contours candidateContours;
         
         RobotTraffic robotTraffic;
         TrafficServer tserver(robotTraffic);
@@ -132,7 +133,7 @@ int main(int argc,char **argv)
               
               // detect playground
               if(!lockPlayground)
-                pDetector.detect(mDetector.getThresholdedImage(), playground, cameraParameters);
+                pDetector.detect(mDetector.getThresholdedImage(), playground, candidateContours, cameraParameters);
 
               
               // store positions of markers and playground
@@ -147,7 +148,7 @@ int main(int argc,char **argv)
             
             HUD hud(drawImage);
             
-            hud.drawPlayground(robotTraffic.getPlayground(), playground.isValid(), lockPlayground);
+            hud.drawPlayground(robotTraffic.getPlayground(), candidateContours, playground.isValid(), lockPlayground);
   
             hud.drawMarkers(markers);
             

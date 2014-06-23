@@ -21,7 +21,7 @@ class PlaygroundDetector {
     /*
     * Find Playground in thres image and calc its Extrinsics
     */
-    bool detect(const cv::Mat &thresImage, Playground &Playground, aruco::CameraParameters &cameraParameters);
+    bool detect(const cv::Mat &thresImage, Playground &Playground, Contours &candidateContours, aruco::CameraParameters &cameraParameters);
         
 
   private:

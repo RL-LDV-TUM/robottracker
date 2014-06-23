@@ -9,7 +9,7 @@ PlaygroundDetector::PlaygroundDetector()
 /*
 * Find Playground in thres image and calc its Extrinsics
 */
-bool PlaygroundDetector::detect(const cv::Mat &thresImage, Playground &playground, aruco::CameraParameters &cameraParameters)
+bool PlaygroundDetector::detect(const cv::Mat &thresImage, Playground &playground, Contours &candidateContours, aruco::CameraParameters &cameraParameters)
 {
   // pg not valid
   playground.id = -1;
@@ -19,14 +19,13 @@ bool PlaygroundDetector::detect(const cv::Mat &thresImage, Playground &playgroun
   findContours(thresImage, contours);
   
   // search for L shaped contours
-  Contours filteredContours;
-  filterContours(contours, filteredContours);
+  filterContours(contours, candidateContours);
   
-    if(filteredContours.size() < 4) return false;
+    if(candidateContours.size() < 4) return false;
   
   // combine exatly 4 L-contours to one rectangle with 4 corners
   std::vector<cv::Point2f> corners; // max length: 4
-  extractPlayGroundCorners(filteredContours, corners);
+  extractPlayGroundCorners(candidateContours, corners);
   
     if(corners.size() != 4) return false;
   

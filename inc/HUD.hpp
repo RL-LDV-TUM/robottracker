@@ -16,7 +16,7 @@ class HUD {
     /*
     * Draw playground, color according to lock / newly detected
     */
-    void drawPlayground(const Playground &playground, bool highlight = false, bool pglock = false);
+    void drawPlayground(const Playground &playground, const Contours &candidateContours, bool highlight = false, bool pglock = false); 
     
     /*
     * Draw all detected markers

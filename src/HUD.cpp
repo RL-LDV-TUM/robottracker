@@ -8,11 +8,17 @@ HUD::HUD(cv::Mat &image, cv::Point legendPos) : image(image), legendPos(legendPo
 /*
 * Draw playground, color according to lock / newly detected
 */
-void HUD::drawPlayground(const Playground &playground, bool highlight, bool pglock)
+void HUD::drawPlayground(const Playground &playground, const Contours &candidateContours, bool highlight, bool pglock)
 {
+  // show detected single edges 
+  if(candidateContours.size() > 0) {
+    cv::drawContours(image, candidateContours, -1, cv::Scalar(0,0,255), 1);
+  }
+
   cv::Scalar color = (pglock) ? cv::Scalar(0,255,0) : cv::Scalar(0,134,209);
   int lineSize = (highlight) ? 4 : 1;
   playground.draw(image,color,lineSize);
+  
 }
 
 /*
