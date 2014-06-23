@@ -18,19 +18,21 @@ int main(int argc,char **argv)
         if (argc <= 1)
         {
           cerr<<"Invalid number of arguments:"<<endl;
-          cerr<<"\tUsage: [CameraId] [Camera.yml] [markerlength(cm)]"<<endl;
+          cerr<<"\tUsage: [CameraId] [Camera.yml] [CamDimWidth] [CamDimHeight] [markerlength(cm)]"<<endl;
           return false;
         }
         
         /**************
         * Params
         ***************/
-        cv::Size captureDimensions(1280, 720);
 
         unsigned cameraId = (argc > 1) ? std::atoi(argv[1]) : 0;
         std::string intrinsicFile = (argc > 2) ? argv[2] : "camera.yml";
-        float markerSize = (argc > 3) ? std::atof(argv[3]) : 4.8f;
+        unsigned camWidth = (argc > 3) ? std::atoi(argv[3]) : 1280;
+        unsigned camHeight = (argc > 4) ? std::atoi(argv[4]) : 720;
+        float markerSize = (argc > 5) ? std::atof(argv[5]) : 4.8f;
         
+        cv::Size captureDimensions(camWidth, camHeight);
         
         /**************
         * Vars
@@ -52,7 +54,7 @@ int main(int argc,char **argv)
         /**************
         * Open Camera
         ***************/
-        videoCapturer.open(0);
+        videoCapturer.open(cameraId);
         // dimensions
 	      videoCapturer.set(CV_CAP_PROP_FRAME_WIDTH, captureDimensions.width);
 	      videoCapturer.set(CV_CAP_PROP_FRAME_HEIGHT, captureDimensions.height);
