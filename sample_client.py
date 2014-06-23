@@ -71,7 +71,6 @@ class RobotTrackerClient:
         except Exception, e:
             self.end("Protocol terminated with Error:" + e)
         
-        self.close()
         return robotmsg
     
 # Debug
@@ -81,10 +80,10 @@ def dprint(msg):
         print msg
 
 def main():
-
+    
     # dst_ip dst_port clientcert clientprivkey
     if(len(sys.argv) < 3):
-        dprint("Usage: sample_client.py dst_ip dst_port [robotID]")
+        print("Usage: sample_client.py dst_ip dst_port [robotID]")
         return
 
     dst_ip = sys.argv[1]
@@ -95,9 +94,15 @@ def main():
     else:
         robotid = 5
 
+    # open connection
     client = RobotTrackerClient(dst_ip, dst_port)
+    
+    # ask for specific robot
     robotmsg = client.query(robotid)
     print("Robot Message is" + str(robotmsg))
+    
+    # close connection
+    client.close()
    
     
 main()

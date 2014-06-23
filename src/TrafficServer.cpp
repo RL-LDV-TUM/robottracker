@@ -6,6 +6,7 @@
 #include <strings.h>
 #include <unistd.h>
 #include <thread>
+#include <arpa/inet.h>
 
 TrafficServer::TrafficServer(RobotTraffic &robotTraffic, unsigned port) : robotTraffic(robotTraffic), portno(port)
 {
@@ -99,10 +100,12 @@ void TrafficServer::communicate(unsigned sock)
           break;
       }
       
+      //robotId = ntohl(robotId);
+      
       RobotMsg msg = robotTraffic.queryRobot(robotId);
       
-      // network byte order, needed?
-      // RobotMessage::hton(&msg);
+      // network byte order?
+      //RobotMessage::hton(&msg);
       
       n = write(sock, &msg, sizeof(msg));
       std::cout << "Msg (" << sizeof(msg) << " bytes) sent for Robot " << robotId << std::endl;
