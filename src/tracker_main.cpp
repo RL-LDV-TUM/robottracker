@@ -28,8 +28,8 @@ int main(int argc,char **argv)
 
         unsigned cameraId = (argc > 1) ? std::atoi(argv[1]) : 0;
         std::string intrinsicFile = (argc > 2) ? argv[2] : "camera.yml";
-        unsigned camWidth = (argc > 3) ? std::atoi(argv[3]) : 1280;
-        unsigned camHeight = (argc > 4) ? std::atoi(argv[4]) : 720;
+        unsigned camWidth = (argc > 3) ? std::atoi(argv[3]) : 1600;
+        unsigned camHeight = (argc > 4) ? std::atoi(argv[4]) : 1200;
         float markerSize = (argc > 5) ? std::atof(argv[5]) : 4.8f;
         
         cv::Size captureDimensions(camWidth, camHeight);
@@ -86,7 +86,7 @@ int main(int argc,char **argv)
         
         mDetector.setCornerRefinementMethod(aruco::MarkerDetector::LINES);
         mDetector.setMinMaxSize(0.01, 0.5);
-        //mDetector.setThresholdParams(7, 7);
+        mDetector.setThresholdParams(8, 6);
         
         /**************
         * Create GUI
