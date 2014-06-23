@@ -30,3 +30,6 @@ target_link_libraries(tracker_main  tracker)
 
 add_executable(client_example src/client_example_main.cpp)
 target_link_libraries(client_example  RobotMsg)
+
+add_executable(servertest src/servertest_main.cpp)
+target_link_libraries(servertest  tracker)

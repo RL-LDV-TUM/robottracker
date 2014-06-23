@@ -95,7 +95,7 @@ void TrafficServer::communicate(unsigned sock)
     {
 
       n = read(sock,&robotId,sizeof(robotId));
-      if (n < 0)
+      if (n <= 0)
       {
           break;
       }
@@ -110,7 +110,7 @@ void TrafficServer::communicate(unsigned sock)
       n = write(sock, &msg, sizeof(msg));
       std::cout << "Msg (" << sizeof(msg) << " bytes) sent for Robot " << robotId << std::endl;
       
-      if (n < 0) 
+      if (n <= 0) 
       {
           break;
       }

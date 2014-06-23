@@ -70,7 +70,7 @@ int main(int argc,char **argv)
           
           /* Send message to the server */
           n = write(sockfd,(void*) &robotId,sizeof(robotId));
-          if (n < 0) 
+          if (n <= 0) 
           {
                perror("ERROR writing to socket");
                exit(1);
@@ -79,7 +79,7 @@ int main(int argc,char **argv)
           /* Now read server response */
           RobotMsg rmsg;
           n = read(sockfd,&rmsg,sizeof(rmsg));
-          if (n < 0) 
+          if (n <= 0) 
           {
                perror("ERROR reading from socket");
                exit(1);
