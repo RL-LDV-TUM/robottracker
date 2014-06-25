@@ -19,17 +19,17 @@ class PlaygroundDetector {
     ~PlaygroundDetector() {}
 
     /*
-    * Find Playground in thres image and calc its Extrinsics
+    * Find Playground in image and calc its Extrinsics
     */
-    bool detect(const cv::Mat &thresImage, Playground &Playground, Contours &candidateContours, aruco::CameraParameters &cameraParameters);
+    bool detect(const cv::Mat &image, Playground &Playground, Contours &candidateContours, aruco::CameraParameters &cameraParameters);
         
 
   private:
     
     /*
-    * Find all contours in thres image
+    * Find all contours in image
     */
-    void findContours(const cv::Mat &thresImage, Contours &contours) const;
+    void findContours(const cv::Mat &image, Contours &contours) const;
     
     /*
     * Filter for L-shaped contours

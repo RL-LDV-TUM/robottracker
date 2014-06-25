@@ -1,5 +1,6 @@
 #include "PlaygroundDetector.hpp"
 #include <limits>
+#include <opencv2/highgui/highgui.hpp>
 
 PlaygroundDetector::PlaygroundDetector()
 {
@@ -7,16 +8,16 @@ PlaygroundDetector::PlaygroundDetector()
 }
 
 /*
-* Find Playground in thres image and calc its Extrinsics
+* Find Playground in image and calc its Extrinsics
 */
-bool PlaygroundDetector::detect(const cv::Mat &thresImage, Playground &playground, Contours &candidateContours, aruco::CameraParameters &cameraParameters)
+bool PlaygroundDetector::detect(const cv::Mat &image, Playground &playground, Contours &candidateContours, aruco::CameraParameters &cameraParameters)
 {
   // pg not valid
   playground.id = -1;
 
-  // get all contours in thres image
+  // get all contours from color thres image
   Contours contours;
-  findContours(thresImage, contours);
+  findContours(image, contours);
   
   // search for L shaped contours
   filterContours(contours, candidateContours);
@@ -42,12 +43,20 @@ bool PlaygroundDetector::detect(const cv::Mat &thresImage, Playground &playgroun
 }
 
 /*
-* Find all contours in thres image
+* Find all contours in image
 */
-void PlaygroundDetector::findContours(const cv::Mat &thresImage, Contours &contours) const
+void PlaygroundDetector::findContours(const cv::Mat &image, Contours &contours) const
 {
-  cv::Mat thres = thresImage.clone();
+  cv::Mat hsv, thres;
+  cv::cvtColor ( image, hsv, CV_BGR2HSV );
+  
+  // light blue: hue 80-120
+  cv::inRange(hsv, cv::Scalar(80, 40, 40), cv::Scalar(120, 255, 255), thres);
+  
+  //erode(thres, thres, cv::Mat());
+  
   cv::findContours(thres, contours, cv::noArray(), CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+  
 }
 
 /*
@@ -60,14 +69,14 @@ void PlaygroundDetector::filterContours(const Contours &contours, Contours &filt
 
   for(unsigned i=0; i<contours.size(); i++)
   {
-    if(contours[i].size() > 20)
+    if(contours[i].size() > 5)
     {
       double area = cv::contourArea(contours[i]);
-      if(area > 200 && area < 1500)
+      if(area > 100 && area < 3000)
       {
         // smooth contour
         std::vector<cv::Point> approxCurve;
-        cv::approxPolyDP(contours[i], approxCurve, double ( contours[i].size() ) *0.01 , true );
+        cv::approxPolyDP(contours[i], approxCurve, double ( contours[i].size() ) *0.025 , true );
         
         if(approxCurve.size() != 6) continue;
         
@@ -76,7 +85,7 @@ void PlaygroundDetector::filterContours(const Contours &contours, Contours &filt
         
         float convexity = area / cv::contourArea(hull);
         
-        if(convexity > 0.25f && convexity < 0.45f && hull.size() == 5)
+        if(convexity > 0.3f && convexity < 0.7f && hull.size() == 5)
         {
           filteredContours.push_back(approxCurve);
           //std::cout << "Area:" << area << " Convexity:" << convexity << std::endl;

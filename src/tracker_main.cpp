@@ -28,8 +28,8 @@ int main(int argc,char **argv)
 
         unsigned cameraId = (argc > 1) ? std::atoi(argv[1]) : 0;
         std::string intrinsicFile = (argc > 2) ? argv[2] : "camera.yml";
-        unsigned camWidth = (argc > 3) ? std::atoi(argv[3]) : 1600;
-        unsigned camHeight = (argc > 4) ? std::atoi(argv[4]) : 1200;
+        unsigned camWidth = (argc > 3) ? std::atoi(argv[3]) : 640;
+        unsigned camHeight = (argc > 4) ? std::atoi(argv[4]) : 480;
         float markerSize = (argc > 5) ? std::atof(argv[5]) : 4.8f;
         
         cv::Size captureDimensions(camWidth, camHeight);
@@ -135,7 +135,7 @@ int main(int argc,char **argv)
               
               // detect playground
               if(!lockPlayground)
-                pDetector.detect(mDetector.getThresholdedImage(), playground, candidateContours, cameraParameters);
+                pDetector.detect(inputImage, playground, candidateContours, cameraParameters);
 
               
               // store positions of markers and playground
