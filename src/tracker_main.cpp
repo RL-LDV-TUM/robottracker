@@ -120,6 +120,7 @@ int main(int argc,char **argv)
               
               // clear
               markers.clear();
+              candidateContours.clear();
               playground.id = -1;
               
                         // mute chatty library :-/

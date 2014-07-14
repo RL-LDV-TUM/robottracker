@@ -17,7 +17,7 @@
 typedef std::pair < cv::Mat, std::time_t > RobotTrace;
 
 
-class RobotTraffic : public aruco::Marker {
+class RobotTraffic {
 
   public:
   
