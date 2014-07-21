@@ -2,6 +2,7 @@
 import struct
 import socket
 import sys
+import math
 
 class RobotTrackerClient:
     # init
@@ -52,7 +53,7 @@ class RobotTrackerClient:
         if self.DEBUG:
             print msg
     
-    # main action
+    # query for robot with id 
     def query(self, robotid):
     
         robotmsg = None;
@@ -72,6 +73,28 @@ class RobotTrackerClient:
             self.end("Protocol terminated with Error:" + e)
         
         return robotmsg
+    
+    # Helper: get distance between two robots
+    def distanceBetween(self, robotmsgA, robotmsgB):
+        if type(robotmsgA) is not tuple or type(robotmsgB) is not tuple \
+        or robotmsgA[0] <= 0 or robotmsgB[0] <= 0:
+            return 0
+            
+        return hypot(robotmsgA[2]-robotmsgB[2], robotmsgA[3]-robotmsgB[3])
+    
+    # Helper: get angle from robot A to robot B
+    def angleTo(self, robotmsgA, robotmsgB):
+        if type(robotmsgA) is not tuple or type(robotmsgB) is not tuple \
+        or robotmsgA[0] <= 0 or robotmsgB[0] <= 0:
+            return 0
+            
+        delta_x = robotmsgB[2]-robotmsgA[2]
+        delta_y = robotmsgB[3]-robotmsgA[3]
+        
+        # angle: clockwise from west := 0, east := +-pi
+        angle = math.atan2(-delta_y, -delta_x)
+        
+        return angle
     
 # Debug
 DEBUG = False;    
@@ -100,7 +123,7 @@ def main():
     # ask for specific robot
     robotmsg = client.query(robotid)
     print("Robot Message is" + str(robotmsg))
-    
+
     # close connection
     client.close()
    
