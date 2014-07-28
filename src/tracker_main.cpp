@@ -56,7 +56,6 @@ int main(int argc,char **argv)
         }
         
         cameraParameters.readFromXMLFile(intrinsicFile);
-        cameraParameters.resize(inputImage.size());
         
         cv::Size captureDimensions = cameraParameters.CamSize;
         
