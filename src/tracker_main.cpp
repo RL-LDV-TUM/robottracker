@@ -18,7 +18,7 @@ int main(int argc,char **argv)
         if (argc <= 1)
         {
           cerr<<"Invalid number of arguments:"<<endl;
-          cerr<<"\tUsage: [CameraId] [Camera.yml] [CamDimWidth] [CamDimHeight] [markerlength(cm)]"<<endl;
+          cerr<<"\tUsage: [CameraId] [Camera.yml] [markerlength(cm)] [serverport]"<<endl;
           return false;
         }
         
@@ -28,11 +28,8 @@ int main(int argc,char **argv)
 
         unsigned cameraId = (argc > 1) ? std::atoi(argv[1]) : 0;
         std::string intrinsicFile = (argc > 2) ? argv[2] : "camera.yml";
-        unsigned camWidth = (argc > 3) ? std::atoi(argv[3]) : 640;
-        unsigned camHeight = (argc > 4) ? std::atoi(argv[4]) : 480;
-        float markerSize = (argc > 5) ? std::atof(argv[5]) : 4.8f;
-        
-        cv::Size captureDimensions(camWidth, camHeight);
+        float markerSize = (argc > 3) ? std::atof(argv[3]) : 4.8f;
+        unsigned serverPort = (argc > 4) ? std::atoi(argv[4]) : 5005;
         
         /**************
         * Vars
@@ -49,12 +46,25 @@ int main(int argc,char **argv)
         Contours candidateContours;
         
         RobotTraffic robotTraffic;
-        TrafficServer tserver(robotTraffic);
+        TrafficServer tserver(robotTraffic, serverPort);
+        
+        //read camera parameters if passed
+        if (intrinsicFile =="")
+        {
+            std::cerr << "No camera calibration file given!" << std::endl;
+            return -1;
+        }
+        
+        cameraParameters.readFromXMLFile(intrinsicFile);
+        cameraParameters.resize(inputImage.size());
+        
+        cv::Size captureDimensions = cameraParameters.CamSize;
         
         /**************
         * Open Camera
         ***************/
         videoCapturer.open(cameraId);
+        
         // dimensions
 	      videoCapturer.set(CV_CAP_PROP_FRAME_WIDTH, captureDimensions.width);
 	      videoCapturer.set(CV_CAP_PROP_FRAME_HEIGHT, captureDimensions.height);
@@ -75,13 +85,6 @@ int main(int argc,char **argv)
         {
            std::cerr << "Camera dimension mismatch" << std::endl;
            return -1;
-        }
-
-        //read camera parameters if passed
-        if (intrinsicFile!="")
-        {
-            cameraParameters.readFromXMLFile(intrinsicFile);
-            cameraParameters.resize(inputImage.size());
         }
         
         mDetector.setCornerRefinementMethod(aruco::MarkerDetector::LINES);

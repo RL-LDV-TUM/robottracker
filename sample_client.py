@@ -80,7 +80,7 @@ class RobotTrackerClient:
         or robotmsgA[0] <= 0 or robotmsgB[0] <= 0:
             return 0
             
-        return hypot(robotmsgA[2]-robotmsgB[2], robotmsgA[3]-robotmsgB[3])
+        return math.hypot(robotmsgA[2]-robotmsgB[2], robotmsgA[3]-robotmsgB[3])
     
     # Helper: get angle from robot A to robot B
     def angleTo(self, robotmsgA, robotmsgB):

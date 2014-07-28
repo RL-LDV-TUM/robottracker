@@ -17,5 +17,5 @@ make
 ```
 # Run
 ```bash
-bin/tracker_main [CameraId] [Camera.yml] [markerlength(cm)]
+bin/tracker_main [CameraId] [Camera.yml] [markerlength(cm)] [serverport]
 ```
